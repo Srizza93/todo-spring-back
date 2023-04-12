@@ -30,6 +30,8 @@ public class BackApplication implements CommandLineRunner {
 
 	public void run(String... args) {
 
+		/*
+
 		// Clean up any previous data
 		todoItemRepo.deleteAll(); // Doesn't delete the collection
 
@@ -66,6 +68,8 @@ public class BackApplication implements CommandLineRunner {
 		findCountOfTodoItems();
 
 		System.out.println("\n-------------------THANK YOU---------------------------");
+
+		 */
 
 	}
 
