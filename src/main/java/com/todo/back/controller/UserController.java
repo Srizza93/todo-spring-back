@@ -1,15 +1,13 @@
 package com.todo.back.controller;
 
-import com.todo.back.model.TodoItem;
 import com.todo.back.model.UserProfile;
 import com.todo.back.repository.user.UserRepository;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -38,13 +36,21 @@ public class UserController {
     // end::get-aggregate-root[]
 
     // tag::get-single-item[]
-    @GetMapping("/users/{email}")
-    EntityModel<UserProfile> one(@PathVariable String email) {
+    @PostMapping("/users")
+    EntityModel<UserProfile> one(@RequestBody Map<String, Object> rBody) throws Exception {
+
+        String email = rBody.get("email").toString();
+        String password = rBody.get("password").toString();
 
         UserProfile user = repository.findUserByEmail(email);
 
+        if (user == null || password == null
+                || !user.getPassword().equals(password)) {
+            throw new Exception("Invalid email or password");
+        }
+
         return EntityModel.of(user, //
-                linkTo(methodOn(UserController.class).one(email)).withSelfRel(),
+                linkTo(methodOn(UserController.class).one(rBody)).withSelfRel(),
                 linkTo(methodOn(UserController.class).all()).withRel("users"));
     }
 
