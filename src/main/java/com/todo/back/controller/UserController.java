@@ -4,6 +4,7 @@ import com.todo.back.model.UserProfile;
 import com.todo.back.repository.user.UserRepository;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class UserController {
     }
     // end::get-aggregate-root[]
 
-    // tag::get-single-item[]
+    // tag::get-single-user[]
     @PostMapping("/users")
     EntityModel<UserProfile> one(@RequestBody Map<String, Object> rBody) throws Exception {
 
@@ -53,6 +54,19 @@ public class UserController {
                 linkTo(methodOn(UserController.class).one(rBody)).withSelfRel(),
                 linkTo(methodOn(UserController.class).all()).withRel("users"));
     }
+    // end::get-single-user[]
 
-    // end::get-single-item[]
+    // tag::signup[]
+    @PostMapping("/signup")
+    ResponseEntity<?> signUp(@RequestBody UserProfile userData) throws Exception {
+
+        UserProfile emailIsUsed = repository.findUserByEmail(userData.getEmail());
+
+        if (emailIsUsed != null) {
+            return ResponseEntity.badRequest().body(new Error("This email has been used already"));
+        }
+
+        return ResponseEntity.ok(repository.save(userData));
+    }
+    // end::signup[]
 }
