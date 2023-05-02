@@ -9,6 +9,8 @@ import com.todo.back.repository.todo.ItemRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.stream.Collectors;
 import java.util.List;
 
@@ -40,7 +42,9 @@ public class TodoItemController {
     @GetMapping("/todos/TODAY/{userId}")
     CollectionModel<EntityModel<TodoItem>> allToday(@PathVariable String userId) {
 
-        String today = LocalDate.now().parse("2023-05-01").toString();
+
+        LocalDate localDate = LocalDate.now();
+        LocalDateTime today = localDate.atTime(LocalTime.MAX);
 
         List<EntityModel<TodoItem>> todos = repository.findByUserToday(userId, today).stream()
                 .map(todo -> EntityModel.of(todo,

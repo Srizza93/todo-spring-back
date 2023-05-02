@@ -13,12 +13,12 @@ public class TodoItem {
 
     private String userId;
     private String content;
-    private String due;
+    private Date due;
     private Date created;
 
     private  Boolean done;
 
-    public TodoItem(String id, String userId, String content, String due, Date created) {
+    public TodoItem(String id, String userId, String content, Date due, Date created) {
         super();
         this.id = id;
         this.userId = userId;
@@ -51,11 +51,11 @@ public class TodoItem {
         this.content = content;
     }
 
-    public String getDue() {
+    public Date getDue() {
         return due;
     }
 
-    public void setDue(String due) {
+    public void setDue(Date due) {
         this.due = due;
     }
 
