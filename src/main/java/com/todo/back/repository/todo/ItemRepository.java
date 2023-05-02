@@ -10,7 +10,7 @@ import com.todo.back.model.TodoItem;
 
 public interface ItemRepository extends MongoRepository<TodoItem, String> {
 
-	@Query("{userId:'?0', due : {$lte : ?1}}")
+	@Query("{userId:'?0', done: false, due : {$lte : ?1}}")
 	List<TodoItem> findByUserToday(String userId, LocalDateTime today);
 
 	@Query(value="{userId:'?0', done: false}")
