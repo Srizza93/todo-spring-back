@@ -83,12 +83,11 @@ public class UserController {
         boolean nameMatchFound = nameMatcher.find();
 
         String surname = userData.getSurname();
-        Pattern surnamePattern = Pattern.compile("^[a-zA-Z]{1,30}$", Pattern.CASE_INSENSITIVE);
-        Matcher surnameMatcher = surnamePattern.matcher(surname);
+        Matcher surnameMatcher = namePattern.matcher(surname);
         boolean surnameMatchFound = surnameMatcher.find();
 
         String password = userData.getPassword();
-        Pattern passwordPattern = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$", Pattern.CASE_INSENSITIVE);
+        Pattern passwordPattern = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\\s).{8,}$", Pattern.CASE_INSENSITIVE);
         Matcher passwordMatcher = passwordPattern.matcher(password);
         boolean passwordMatchFound = passwordMatcher.find();
 
@@ -143,16 +142,6 @@ public class UserController {
         msg.setContent(emailBody, "text/html");
         msg.setSentDate(new Date());
 
-//        MimeBodyPart messageBodyPart = new MimeBodyPart();
-//        messageBodyPart.setContent("Tutorials point email", "text/html");
-//
-//        Multipart multipart = new MimeMultipart();
-//        multipart.addBodyPart(messageBodyPart);
-//        MimeBodyPart attachPart = new MimeBodyPart();
-
-//        attachPart.attachFile("/var/tmp/image19.png");
-//        multipart.addBodyPart(attachPart);
-//        msg.setContent(multipart);
         Transport.send(msg);
     }
 }

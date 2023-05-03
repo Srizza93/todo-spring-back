@@ -29,12 +29,12 @@ public class TodoItemController {
     @GetMapping("/todos")
     CollectionModel<EntityModel<TodoItem>> all() {
 
-        List<EntityModel<TodoItem>> employees = repository.findAll().stream()
-                .map(employee -> EntityModel.of(employee,
-                        linkTo(methodOn(TodoItemController.class).all()).withRel("employees")))
+        List<EntityModel<TodoItem>> todos = repository.findAll().stream()
+                .map(todo -> EntityModel.of(todo,
+                        linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
                 .collect(Collectors.toList());
 
-        return CollectionModel.of(employees, linkTo(methodOn(TodoItemController.class).all()).withSelfRel());
+        return CollectionModel.of(todos, linkTo(methodOn(TodoItemController.class).all()).withSelfRel());
     }
     // end::get-aggregate-root[]
 
