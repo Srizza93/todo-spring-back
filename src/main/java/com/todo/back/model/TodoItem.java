@@ -3,24 +3,28 @@ package com.todo.back.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 @Document("TodoItem")
 public class TodoItem {
-
-
 
     @Id
     private String id;
 
-    private String name;
-    private int quantity;
-    private String category;
+    private String userId;
+    private String content;
+    private Date due;
+    private Date created;
 
-    public TodoItem(String id, String name, int quantity, String category) {
+    private  Boolean done;
+
+    public TodoItem(String id, String userId, String content, Date due, Date created) {
         super();
         this.id = id;
-        this.name = name;
-        this.quantity = quantity;
-        this.category = category;
+        this.userId = userId;
+        this.content = content;
+        this.due = due;
+        this.created = created;
     }
 
     public String getId() {
@@ -31,28 +35,40 @@ public class TodoItem {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public int getItemQuantity() {
-        return quantity;
+    public String getContent() {
+        return content;
     }
 
-    public void setItemQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getCategory() {
-        return category;
+    public Date getDue() {
+        return due;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setDue(Date due) {
+        this.due = due;
+    }
+
+    public Date getCreated() { return created; }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Boolean getDone() { return done; }
+
+    public void setDone(Boolean done) {
+        this.done = done;
     }
 
 }

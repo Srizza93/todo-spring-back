@@ -1,4 +1,4 @@
-package com.todo.back.repository;
+package com.todo.back.repository.todo;
 
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
