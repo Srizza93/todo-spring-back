@@ -46,7 +46,7 @@ public class TodoItemController {
         LocalDate localDate = LocalDate.now();
         LocalDateTime today = localDate.atTime(LocalTime.MAX);
 
-        List<EntityModel<TodoItem>> todos = repository.findByUserToday(userId, today).stream()
+        List<EntityModel<TodoItem>> todos = repository.findByUserIdAndDoneAndDueLessThanEqual(userId, false, today).stream()
                 .map(todo -> EntityModel.of(todo,
                         linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
                 .collect(Collectors.toList());
@@ -59,7 +59,7 @@ public class TodoItemController {
     @GetMapping("/todos/INBOX/{userId}")
     CollectionModel<EntityModel<TodoItem>> allInbox(@PathVariable String userId) {
 
-        List<EntityModel<TodoItem>> todos = repository.findByUserInbox(userId).stream()
+        List<EntityModel<TodoItem>> todos = repository.findByUserIdAndDone(userId, false).stream()
                 .map(todo -> EntityModel.of(todo,
                         linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
                 .collect(Collectors.toList());
@@ -72,7 +72,7 @@ public class TodoItemController {
     @GetMapping("/todos/DONE/{userId}")
     CollectionModel<EntityModel<TodoItem>> allDone(@PathVariable String userId) {
 
-        List<EntityModel<TodoItem>> todos = repository.findByUserDone(userId).stream()
+        List<EntityModel<TodoItem>> todos = repository.findByUserIdAndDone(userId, true).stream()
                 .map(todo -> EntityModel.of(todo,
                         linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
                 .collect(Collectors.toList());

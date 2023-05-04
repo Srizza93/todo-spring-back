@@ -56,8 +56,7 @@ public class UserController {
 
         UserProfile user = repository.findUserByEmail(email);
 
-        if (user == null || password == null
-                || !user.getPassword().equals(password)) {
+        if (user == null || !user.getPassword().equals(password)) {
             throw new Exception("Invalid email or password");
         }
 
