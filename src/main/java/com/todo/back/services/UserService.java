@@ -1,11 +1,20 @@
 package com.todo.back.services;
 
+import com.todo.back.controller.UserController;
 import com.todo.back.model.UserProfile;
 import com.todo.back.repository.user.UserRepository;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class UserService {
@@ -14,6 +23,32 @@ public class UserService {
 
     UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public CollectionModel<EntityModel<UserProfile>> users() {
+
+        List<EntityModel<UserProfile>> users = userRepository.findAll().stream()
+                .map(user -> EntityModel.of(user,
+                        linkTo(methodOn(UserController.class).all()).withRel("users")))
+                .toList();
+
+        return CollectionModel.of(users, linkTo(methodOn(UserController.class).all()).withSelfRel());
+    }
+
+    public EntityModel<UserProfile> login(@RequestBody Map<String, Object> rBody) throws Exception {
+
+        String email = rBody.get("email").toString();
+        String password = rBody.get("password").toString();
+
+        UserProfile user = userRepository.findUserByEmail(email);
+
+        if (user == null || !user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        return EntityModel.of(user, //
+                linkTo(methodOn(UserController.class).one(rBody)).withSelfRel(),
+                linkTo(methodOn(UserController.class).all()).withRel("users"));
     }
 
     public void signup(UserProfile userData) throws Exception {
