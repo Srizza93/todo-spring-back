@@ -1,5 +1,6 @@
 package com.todo.back.controller;
 
+import com.todo.back.dto.todo.TodoDto;
 import com.todo.back.model.TodoItem;
 import com.todo.back.services.TodoService;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,6 @@ public class TodoItemController {
     // tag::get-aggregate-root[]
     @GetMapping("/todos")
     public ResponseEntity<?> all() {
-
         try {
             return ResponseEntity.ok(todoService.todos());
         } catch (Exception e) {
@@ -64,9 +64,9 @@ public class TodoItemController {
 
     // tag::post-new-todo[]
     @PostMapping("/todos")
-    ResponseEntity<?> newTodo(@RequestBody TodoItem newTodo) {
+    ResponseEntity<?> newTodo(@RequestBody TodoDto todoDto) {
         try {
-            return ResponseEntity.ok(todoService.addTodo(newTodo));
+            return ResponseEntity.ok(todoService.addTodo(todoDto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -75,9 +75,9 @@ public class TodoItemController {
 
     // tag::check-todo[]
     @PutMapping("/todos")
-    ResponseEntity<?> replaceTodo(@RequestBody TodoItem newTodo) {
+    ResponseEntity<?> replaceTodo(@RequestBody TodoDto todoDto) {
         try {
-            return ResponseEntity.ok(todoService.editTodoStatus(newTodo));
+            return ResponseEntity.ok(todoService.editTodoStatus(todoDto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
