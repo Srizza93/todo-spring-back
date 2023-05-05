@@ -2,20 +2,13 @@ package com.todo.back.controller;
 
 import com.todo.back.model.UserProfile;
 import com.todo.back.repository.user.UserRepository;
-import jakarta.mail.*;
-import jakarta.mail.internet.*;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,7 +16,7 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import com.todo.back.services.EmailService;
 
 @RestController
 public class UserController {
@@ -110,37 +103,9 @@ public class UserController {
             return ResponseEntity.badRequest().body(new Error("The password format is not valid"));
         }
 
-        sendmail(email);
+        EmailService.sendmail(email);
 
         return ResponseEntity.ok(repository.save(userData));
     }
     // end::signup[]
-
-    private void sendmail(String email) throws AddressException, MessagingException, IOException {
-        Dotenv dotenv = Dotenv.load();
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-
-        Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
-            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
-                return new jakarta.mail.PasswordAuthentication(dotenv.get("GM_ACC"), dotenv.get("GM_PASS"));
-            }
-        });
-
-        Message msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress(dotenv.get("GM_ACC"), false));
-
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/emailRegistration.html");
-        String emailBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
-        msg.setSubject("ToDo Successful Registration");
-        msg.setContent(emailBody, "text/html");
-        msg.setSentDate(new Date());
-
-        Transport.send(msg);
-    }
 }
