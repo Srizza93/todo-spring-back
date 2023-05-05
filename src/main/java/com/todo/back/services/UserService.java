@@ -1,15 +1,17 @@
 package com.todo.back.services;
 
 import com.todo.back.controller.UserController;
+import com.todo.back.dto.user.UserLoginDto;
+import com.todo.back.dto.user.UserSignupDto;
 import com.todo.back.model.UserProfile;
 import com.todo.back.repository.user.UserRepository;
+import jakarta.mail.MessagingException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,10 +37,10 @@ public class UserService {
         return CollectionModel.of(users, linkTo(methodOn(UserController.class).all()).withSelfRel());
     }
 
-    public EntityModel<UserProfile> login(@RequestBody Map<String, Object> rBody) throws Exception {
+    public EntityModel<UserProfile> login(UserLoginDto credentials) throws IllegalArgumentException {
 
-        String email = rBody.get("email").toString();
-        String password = rBody.get("password").toString();
+        String email = credentials.getEmail();
+        String password = credentials.getPassword();
 
         UserProfile user = userRepository.findUserByEmail(email);
 
@@ -51,28 +53,28 @@ public class UserService {
         }
 
         return EntityModel.of(user, //
-                linkTo(methodOn(UserController.class).one(rBody)).withSelfRel(),
+                linkTo(methodOn(UserController.class).one(credentials)).withSelfRel(),
                 linkTo(methodOn(UserController.class).all()).withRel("users"));
     }
 
-    public void signup(UserProfile userData) throws Exception {
+    public void signup(UserSignupDto userDataDto) throws IllegalArgumentException, IOException, MessagingException {
 
-        String email = userData.getEmail();
+        String email = userDataDto.getEmail();
         Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", Pattern.CASE_INSENSITIVE);
         Matcher emailMatcher = emailPattern.matcher(email);
         boolean emailMatchFound = emailMatcher.find();
         UserProfile emailIsUsed = userRepository.findUserByEmail(email);
 
-        String name = userData.getName();
+        String name = userDataDto.getName();
         Pattern namePattern = Pattern.compile("^[a-zA-Z]{1,30}$", Pattern.CASE_INSENSITIVE);
         Matcher nameMatcher = namePattern.matcher(name);
         boolean nameMatchFound = nameMatcher.find();
 
-        String surname = userData.getSurname();
+        String surname = userDataDto.getSurname();
         Matcher surnameMatcher = namePattern.matcher(surname);
         boolean surnameMatchFound = surnameMatcher.find();
 
-        String password = userData.getPassword();
+        String password = userDataDto.getPassword();
         Pattern passwordPattern = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\\s).{8,}$", Pattern.CASE_INSENSITIVE);
         Matcher passwordMatcher = passwordPattern.matcher(password);
         boolean passwordMatchFound = passwordMatcher.find();
@@ -96,6 +98,12 @@ public class UserService {
         if (!passwordMatchFound) {
             throw new IllegalArgumentException("The password format is not valid");
         }
+
+        UserProfile userData = new UserProfile(null, name, surname, email, password);
+        userData.setEmail(userDataDto.getEmail());
+        userData.setName(userDataDto.getName());
+        userData.setSurname(userDataDto.getSurname());
+        userData.setPassword(userDataDto.getPassword());
 
         EmailService.sendmail(email);
         userRepository.save(userData);
