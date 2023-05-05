@@ -42,8 +42,12 @@ public class UserService {
 
         UserProfile user = userRepository.findUserByEmail(email);
 
-        if (user == null || !user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("Invalid email or password");
+        if (user == null) {
+            throw new IllegalArgumentException("Invalid email");
+        }
+
+        if (!user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Invalid password");
         }
 
         return EntityModel.of(user, //

@@ -30,7 +30,7 @@ public class UserController {
     // end::get-aggregate-root[]
 
     // tag::get-single-user[]
-    @PostMapping("/users")
+    @PostMapping("/login")
     public ResponseEntity<?> one(@RequestBody Map<String, Object> rBody) {
 
         try {
