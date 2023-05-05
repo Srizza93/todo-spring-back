@@ -8,6 +8,7 @@ import com.todo.back.repository.user.UserRepository;
 import jakarta.mail.MessagingException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -40,15 +41,17 @@ public class UserService {
     public EntityModel<UserProfile> login(UserLoginDto credentials) throws IllegalArgumentException {
 
         String email = credentials.getEmail();
-        String password = credentials.getPassword();
-
         UserProfile user = userRepository.findUserByEmail(email);
 
         if (user == null) {
             throw new IllegalArgumentException("Invalid email");
         }
 
-        if (!user.getPassword().equals(password)) {
+        String inputPassword = credentials.getPassword();
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+        boolean passwordIsValid = encoder.matches(inputPassword, user.getPassword());
+
+        if (!passwordIsValid) {
             throw new IllegalArgumentException("Invalid password");
         }
 
@@ -99,7 +102,11 @@ public class UserService {
             throw new IllegalArgumentException("The password format is not valid");
         }
 
-        UserProfile userData = new UserProfile(null, name, surname, email, password);
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+        String encodedPassword = encoder.encode(password);
+        userDataDto.setPassword(encodedPassword);
+
+        UserProfile userData = new UserProfile(null, name, surname, email, encodedPassword);
         userData.setEmail(userDataDto.getEmail());
         userData.setName(userDataDto.getName());
         userData.setSurname(userDataDto.getSurname());
