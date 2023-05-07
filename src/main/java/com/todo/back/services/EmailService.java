@@ -36,7 +36,7 @@ public class EmailService {
         msg.setFrom(new InternetAddress(dotenv.get("GM_ACC"), false));
 
         String emailBody;
-        try (InputStream inputStream = EmailService.class.getClassLoader().getResourceAsStream("static/emailRegistration.html")) {
+        try (InputStream inputStream = EmailService.class.getClassLoader().getResourceAsStream("templates/emailRegistration.html")) {
             assert inputStream != null;
             emailBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         }

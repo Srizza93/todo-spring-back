@@ -112,7 +112,11 @@ public class UserService {
         userData.setSurname(userDataDto.getSurname());
         userData.setPassword(userDataDto.getPassword());
 
-        EmailService.sendmail(email);
+        try {
+            EmailService.sendmail(email);
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
         userRepository.save(userData);
 
     }
