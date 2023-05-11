@@ -1,13 +1,16 @@
 package com.todo.back.dto.user;
 
-import org.springframework.data.annotation.Id;
-
 public class UserSignupDto {
 
+    private String username;
     private String name;
     private String surname;
     private String email;
     private String password;
+
+    public String getUsername() { return username; }
+
+    public void setUsername(String username) { this.username = username; }
 
     public String getName() {
         return name;

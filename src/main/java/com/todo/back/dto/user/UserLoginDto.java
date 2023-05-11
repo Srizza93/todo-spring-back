@@ -2,12 +2,15 @@ package com.todo.back.dto.user;
 
 public class UserLoginDto {
 
+    private String username;
     private String email;
     private String password;
 
-    public String getEmail() {
-        return email;
-    }
+    public String getUsername() { return username; }
+
+    public void setUsername(String username) { this.username = username; }
+
+    public String getEmail() { return email; }
 
     public void setEmail(String email) {
         this.email = email;

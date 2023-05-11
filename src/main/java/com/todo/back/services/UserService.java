@@ -38,27 +38,27 @@ public class UserService {
         return CollectionModel.of(users, linkTo(methodOn(UserController.class).all()).withSelfRel());
     }
 
-    public EntityModel<UserProfile> login(UserLoginDto credentials) throws IllegalArgumentException {
-
-        String email = credentials.getEmail();
-        UserProfile user = userRepository.findUserByEmail(email);
-
-        if (user == null) {
-            throw new IllegalArgumentException("Invalid email");
-        }
-
-        String inputPassword = credentials.getPassword();
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
-        boolean passwordIsValid = encoder.matches(inputPassword, user.getPassword());
-
-        if (!passwordIsValid) {
-            throw new IllegalArgumentException("Invalid password");
-        }
-
-        return EntityModel.of(user, //
-                linkTo(methodOn(UserController.class).one(credentials)).withSelfRel(),
-                linkTo(methodOn(UserController.class).all()).withRel("users"));
-    }
+//    public EntityModel<UserProfile> login(UserLoginDto credentials) throws IllegalArgumentException {
+//
+//        String email = credentials.getEmail();
+//        UserProfile user = userRepository.findUserByEmail(email);
+//
+//        if (user == null) {
+//            throw new IllegalArgumentException("Invalid email");
+//        }
+//
+//        String inputPassword = credentials.getPassword();
+//        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+//        boolean passwordIsValid = encoder.matches(inputPassword, user.getPassword());
+//
+//        if (!passwordIsValid) {
+//            throw new IllegalArgumentException("Invalid password");
+//        }
+//
+//        return EntityModel.of(user, //
+//                linkTo(methodOn(UserController.class).one(credentials)).withSelfRel(),
+//                linkTo(methodOn(UserController.class).all()).withRel("users"));
+//    }
 
     public void signup(UserSignupDto userDataDto) throws IllegalArgumentException, IOException, MessagingException {
 
@@ -68,13 +68,17 @@ public class UserService {
         boolean emailMatchFound = emailMatcher.find();
         UserProfile emailIsUsed = userRepository.findUserByEmail(email);
 
+        String username = userDataDto.getName();
+        Pattern usernamePattern = Pattern.compile("^[a-zA-Z]{1,30}$", Pattern.CASE_INSENSITIVE);
+        Matcher usernameMatcher = usernamePattern.matcher(username);
+        boolean usernameMatchFound = usernameMatcher.find();
+
         String name = userDataDto.getName();
-        Pattern namePattern = Pattern.compile("^[a-zA-Z]{1,30}$", Pattern.CASE_INSENSITIVE);
-        Matcher nameMatcher = namePattern.matcher(name);
+        Matcher nameMatcher = usernamePattern.matcher(name);
         boolean nameMatchFound = nameMatcher.find();
 
         String surname = userDataDto.getSurname();
-        Matcher surnameMatcher = namePattern.matcher(surname);
+        Matcher surnameMatcher = usernamePattern.matcher(surname);
         boolean surnameMatchFound = surnameMatcher.find();
 
         String password = userDataDto.getPassword();
@@ -88,6 +92,10 @@ public class UserService {
 
         if (!emailMatchFound) {
             throw new IllegalArgumentException("The email format is not valid");
+        }
+
+        if (!usernameMatchFound) {
+            throw new IllegalArgumentException("The username format is not valid");
         }
 
         if (!nameMatchFound) {
@@ -106,8 +114,9 @@ public class UserService {
         String encodedPassword = encoder.encode(password);
         userDataDto.setPassword(encodedPassword);
 
-        UserProfile userData = new UserProfile(null, name, surname, email, encodedPassword);
+        UserProfile userData = new UserProfile(username, name, surname, email, encodedPassword);
         userData.setEmail(userDataDto.getEmail());
+        userData.setUsername(userDataDto.getUsername());
         userData.setName(userDataDto.getName());
         userData.setSurname(userDataDto.getSurname());
         userData.setPassword(userDataDto.getPassword());
