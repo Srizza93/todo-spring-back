@@ -63,11 +63,6 @@ public class WebSecurityConfig {
                         .requestMatchers("/signup", "/login").permitAll()
                         .anyRequest().authenticated()
                 );
-//                .formLogin((form) -> form
-//                        .loginPage("/login")
-//                        .permitAll()
-//                )
-//                .logout(LogoutConfigurer::permitAll);
 
         http.authenticationProvider(authenticationProvider());
 
