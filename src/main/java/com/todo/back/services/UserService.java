@@ -1,15 +1,18 @@
 package com.todo.back.services;
 
 import com.todo.back.controller.UserController;
-import com.todo.back.dto.user.UserSignupDto;
+import com.todo.back.model.ERole;
+import com.todo.back.model.Role;
 import com.todo.back.model.UserProfile;
 import com.todo.back.payload.request.LoginRequest;
+import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.payload.response.JwtResponse;
+import com.todo.back.payload.response.MessageResponse;
+import com.todo.back.repository.role.RoleRepository;
 import com.todo.back.repository.user.UserRepository;
 import com.todo.back.security.jwt.JwtUtils;
 import com.todo.back.security.services.UserDetailsImpl;
 import jakarta.mail.MessagingException;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -20,11 +23,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -43,6 +49,12 @@ public class UserService {
     @Autowired
     AuthenticationManager authenticationManager;
 
+    @Autowired
+    RoleRepository roleRepository;
+
+    @Autowired
+    PasswordEncoder encoder;
+
     UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -51,10 +63,10 @@ public class UserService {
 
         List<EntityModel<UserProfile>> users = userRepository.findAll().stream()
                 .map(user -> EntityModel.of(user,
-                        linkTo(methodOn(UserController.class).all()).withRel("users")))
+                        linkTo(methodOn(UserController.class).getAllUsers()).withRel("users")))
                 .toList();
 
-        return CollectionModel.of(users, linkTo(methodOn(UserController.class).all()).withSelfRel());
+        return CollectionModel.of(users, linkTo(methodOn(UserController.class).getAllUsers()).withSelfRel());
     }
 
     public ResponseEntity<JwtResponse> login(LoginRequest loginRequest) throws IllegalArgumentException {
@@ -78,8 +90,6 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        System.out.println(authentication + " - JWT " + jwt);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -92,42 +102,47 @@ public class UserService {
                 roles));
     }
 
-    public void signup(UserSignupDto userDataDto) throws IllegalArgumentException, IOException, MessagingException {
+    public ResponseEntity<MessageResponse> signup(SignupRequest signUpRequest) throws IllegalArgumentException, IOException, MessagingException {
 
-        String email = userDataDto.getEmail();
+        String username = signUpRequest.getUsername();
+        Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{3,30}$", Pattern.CASE_INSENSITIVE);
+        Matcher usernameMatcher = usernamePattern.matcher(username);
+        boolean usernameMatchFound = usernameMatcher.find();
+        boolean usernameIsUsed = userRepository.existsByUsername(signUpRequest.getUsername());
+
+        String email = signUpRequest.getEmail();
         Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", Pattern.CASE_INSENSITIVE);
         Matcher emailMatcher = emailPattern.matcher(email);
         boolean emailMatchFound = emailMatcher.find();
-        UserProfile emailIsUsed = userRepository.findUserByEmail(email);
+        boolean emailIsUsed = userRepository.existsByEmail(email);
 
-        String username = userDataDto.getName();
-        Pattern usernamePattern = Pattern.compile("^[a-zA-Z]{1,30}$", Pattern.CASE_INSENSITIVE);
-        Matcher usernameMatcher = usernamePattern.matcher(username);
-        boolean usernameMatchFound = usernameMatcher.find();
-
-        String name = userDataDto.getName();
+        String name = signUpRequest.getName();
         Matcher nameMatcher = usernamePattern.matcher(name);
         boolean nameMatchFound = nameMatcher.find();
 
-        String surname = userDataDto.getSurname();
+        String surname = signUpRequest.getSurname();
         Matcher surnameMatcher = usernamePattern.matcher(surname);
         boolean surnameMatchFound = surnameMatcher.find();
 
-        String password = userDataDto.getPassword();
+        String password = signUpRequest.getPassword();
         Pattern passwordPattern = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\\s).{8,}$", Pattern.CASE_INSENSITIVE);
         Matcher passwordMatcher = passwordPattern.matcher(password);
         boolean passwordMatchFound = passwordMatcher.find();
 
-        if (emailIsUsed != null) {
+        if (usernameIsUsed) {
+            throw new IllegalArgumentException("This username has been used already");
+        }
+
+        if (!usernameMatchFound) {
+            throw new IllegalArgumentException("The username format is not valid");
+        }
+
+        if (emailIsUsed) {
             throw new IllegalArgumentException("This email has been used already");
         }
 
         if (!emailMatchFound) {
             throw new IllegalArgumentException("The email format is not valid");
-        }
-
-        if (!usernameMatchFound) {
-            throw new IllegalArgumentException("The username format is not valid");
         }
 
         if (!nameMatchFound) {
@@ -142,24 +157,48 @@ public class UserService {
             throw new IllegalArgumentException("The password format is not valid");
         }
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
-        String encodedPassword = encoder.encode(password);
-        userDataDto.setPassword(encodedPassword);
+        // Create new user's account
+        UserProfile user = new UserProfile(username, name, surname, email, encoder.encode(password));
 
-        UserProfile userData = new UserProfile(username, name, surname, email, encodedPassword);
-        userData.setEmail(userDataDto.getEmail());
-        userData.setUsername(userDataDto.getUsername());
-        userData.setName(userDataDto.getName());
-        userData.setSurname(userDataDto.getSurname());
-        userData.setPassword(userDataDto.getPassword());
+        Set<String> strRoles = signUpRequest.getRoles();
+        Set<Role> roles = new HashSet<>();
+
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin" -> {
+                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(adminRole);
+                    }
+                    case "mod" -> {
+                        Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(modRole);
+                    }
+                    default -> {
+                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(userRole);
+                    }
+                }
+            });
+        }
+
+        user.setRoles(roles);
+        userRepository.save(user);
 
         try {
             EmailService.sendmail(email);
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            throw new MessagingException("Error: couldn't send the registration email" + e);
         }
-        userRepository.save(userData);
 
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
 }
