@@ -65,40 +65,20 @@ public class UserController {
     }
     // end::get-aggregate-root[]
 
-//    // tag::get-single-user[]
-//    @PostMapping("/login")
-//    public ResponseEntity<?> one(@RequestBody UserLoginDto credentials) {
-//
-//        try {
-//            return ResponseEntity.ok(userService.login(credentials));
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(new Error(e.getMessage()));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-//    // end::get-single-user[]
-
+    // tag::get-single-user[]
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
+        try {
+            return ResponseEntity.ok(userService.login(loginRequest));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new Error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+    // end::get-single-user[]
+
 
 //    // tag::signup[]
 //    @PostMapping("/signup")

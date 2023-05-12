@@ -1,20 +1,33 @@
 package com.todo.back.services;
 
 import com.todo.back.controller.UserController;
-import com.todo.back.dto.user.UserLoginDto;
 import com.todo.back.dto.user.UserSignupDto;
 import com.todo.back.model.UserProfile;
+import com.todo.back.payload.request.LoginRequest;
+import com.todo.back.payload.response.JwtResponse;
 import com.todo.back.repository.user.UserRepository;
+import com.todo.back.security.jwt.JwtUtils;
+import com.todo.back.security.services.UserDetailsImpl;
 import jakarta.mail.MessagingException;
+import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -23,6 +36,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @Autowired
+    JwtUtils jwtUtils;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
 
     UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -38,27 +57,40 @@ public class UserService {
         return CollectionModel.of(users, linkTo(methodOn(UserController.class).all()).withSelfRel());
     }
 
-//    public EntityModel<UserProfile> login(UserLoginDto credentials) throws IllegalArgumentException {
-//
-//        String email = credentials.getEmail();
-//        UserProfile user = userRepository.findUserByEmail(email);
-//
-//        if (user == null) {
-//            throw new IllegalArgumentException("Invalid email");
-//        }
-//
-//        String inputPassword = credentials.getPassword();
-//        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
-//        boolean passwordIsValid = encoder.matches(inputPassword, user.getPassword());
-//
-//        if (!passwordIsValid) {
-//            throw new IllegalArgumentException("Invalid password");
-//        }
-//
-//        return EntityModel.of(user, //
-//                linkTo(methodOn(UserController.class).one(credentials)).withSelfRel(),
-//                linkTo(methodOn(UserController.class).all()).withRel("users"));
-//    }
+    public ResponseEntity<JwtResponse> login(LoginRequest loginRequest) throws IllegalArgumentException {
+
+        String username = loginRequest.getUsername();
+        Optional<UserProfile> user = userRepository.findByUsername(username);
+
+        UserProfile userProfile = user.orElseThrow(() -> new IllegalArgumentException("Invalid username"));
+
+        String inputPassword = loginRequest.getPassword();
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+        boolean passwordIsValid = encoder.matches(inputPassword, userProfile.getPassword());
+
+        if (!passwordIsValid) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtToken(authentication);
+
+        System.out.println(authentication + " - JWT " + jwt);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new JwtResponse(jwt,
+                userDetails.getId(),
+                userDetails.getUsername(),
+                userDetails.getEmail(),
+                roles));
+    }
 
     public void signup(UserSignupDto userDataDto) throws IllegalArgumentException, IOException, MessagingException {
 
