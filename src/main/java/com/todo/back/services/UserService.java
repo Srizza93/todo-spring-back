@@ -117,11 +117,12 @@ public class UserService {
         boolean emailIsUsed = userRepository.existsByEmail(email);
 
         String name = signUpRequest.getName();
-        Matcher nameMatcher = usernamePattern.matcher(name);
+        Pattern namePattern = Pattern.compile("^[a-zA-Z]{1,30}( [a-zA-Z]{1,30}){0,3}$", Pattern.CASE_INSENSITIVE);
+        Matcher nameMatcher = namePattern.matcher(name);
         boolean nameMatchFound = nameMatcher.find();
 
         String surname = signUpRequest.getSurname();
-        Matcher surnameMatcher = usernamePattern.matcher(surname);
+        Matcher surnameMatcher = namePattern.matcher(surname);
         boolean surnameMatchFound = surnameMatcher.find();
 
         String password = signUpRequest.getPassword();

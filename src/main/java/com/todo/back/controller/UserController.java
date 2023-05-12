@@ -5,6 +5,7 @@ import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ public class UserController {
 
     // tag::get-aggregate-root[]
     @GetMapping("/users")
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
 
         try {
