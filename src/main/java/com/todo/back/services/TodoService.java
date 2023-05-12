@@ -1,9 +1,9 @@
 package com.todo.back.services;
 
 import com.todo.back.controller.TodoItemController;
-import com.todo.back.dto.todo.TodoDto;
+import com.todo.back.dto.TodoDto;
 import com.todo.back.model.TodoItem;
-import com.todo.back.repository.todo.ItemRepository;
+import com.todo.back.repository.ItemRepository;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.stereotype.Service;

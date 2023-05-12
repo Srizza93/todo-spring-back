@@ -1,6 +1,6 @@
 package com.todo.back.controller;
 
-import com.todo.back.dto.todo.TodoDto;
+import com.todo.back.dto.TodoDto;
 import com.todo.back.services.TodoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

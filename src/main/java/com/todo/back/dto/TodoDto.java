@@ -1,4 +1,4 @@
-package com.todo.back.dto.todo;
+package com.todo.back.dto;
 
 import java.util.Date;
 

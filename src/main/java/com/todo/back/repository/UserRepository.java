@@ -1,4 +1,4 @@
-package com.todo.back.repository.user;
+package com.todo.back.repository;
 
 import com.todo.back.model.UserProfile;
 import org.springframework.data.mongodb.repository.MongoRepository;

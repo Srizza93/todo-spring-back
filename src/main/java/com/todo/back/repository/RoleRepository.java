@@ -1,4 +1,4 @@
-package com.todo.back.repository.role;
+package com.todo.back.repository;
 
 import com.todo.back.model.ERole;
 import com.todo.back.model.Role;

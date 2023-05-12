@@ -1,4 +1,4 @@
-package com.todo.back.repository.todo;
+package com.todo.back.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
