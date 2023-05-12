@@ -1,13 +1,17 @@
-package com.todo.back.repository.user;
+package com.todo.back.repository;
 
 import com.todo.back.model.UserProfile;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
+
+import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<UserProfile, String> {
 
-    @Query("{email:'?0'}")
-    UserProfile findUserByEmail(String email);
+    Optional<UserProfile> findByUsername(String username);
+
+    Boolean existsByUsername(String username);
+
+    Boolean existsByEmail(String email);
 
     public long count();
 }

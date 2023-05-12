@@ -1,114 +1,105 @@
 package com.todo.back.controller;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
-
-import com.todo.back.model.TodoItem;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import com.todo.back.repository.todo.ItemRepository;
+import com.todo.back.dto.TodoDto;
+import com.todo.back.services.TodoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.stream.Collectors;
-import java.util.List;
-
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 public class TodoItemController {
 
-    private final ItemRepository repository;
+    private final TodoService todoService;
 
-    TodoItemController(ItemRepository repository) {
-        this.repository = repository;
+    TodoItemController(TodoService todoService) {
+        this.todoService = todoService;
     }
 
     // Aggregate root
 
     // tag::get-aggregate-root[]
     @GetMapping("/todos")
-    CollectionModel<EntityModel<TodoItem>> all() {
-
-        List<EntityModel<TodoItem>> todos = repository.findAll().stream()
-                .map(todo -> EntityModel.of(todo,
-                        linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(todos, linkTo(methodOn(TodoItemController.class).all()).withSelfRel());
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> all() {
+        try {
+            return ResponseEntity.ok(todoService.todos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // end::get-aggregate-root[]
 
     // tag::get-done-user[]
     @GetMapping("/todos/TODAY/{userId}")
-    CollectionModel<EntityModel<TodoItem>> allToday(@PathVariable String userId) {
-
-
-        LocalDate localDate = LocalDate.now();
-        LocalDateTime today = localDate.atTime(LocalTime.MAX);
-
-        List<EntityModel<TodoItem>> todos = repository.findByUserToday(userId, today).stream()
-                .map(todo -> EntityModel.of(todo,
-                        linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(todos, linkTo(methodOn(TodoItemController.class).all()).withSelfRel());
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    ResponseEntity<?> allToday(@PathVariable String userId) {
+        try {
+            return ResponseEntity.ok(todoService.today(userId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // end::get-done-user[]
 
     // tag::get-inbox-user[]
     @GetMapping("/todos/INBOX/{userId}")
-    CollectionModel<EntityModel<TodoItem>> allInbox(@PathVariable String userId) {
-
-        List<EntityModel<TodoItem>> todos = repository.findByUserInbox(userId).stream()
-                .map(todo -> EntityModel.of(todo,
-                        linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(todos, linkTo(methodOn(TodoItemController.class).all()).withSelfRel());
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    ResponseEntity<?> allInbox(@PathVariable String userId) {
+        try {
+            return ResponseEntity.ok(todoService.inbox(userId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // end::get-inbox-user[]
 
     // tag::get-done-user[]
     @GetMapping("/todos/DONE/{userId}")
-    CollectionModel<EntityModel<TodoItem>> allDone(@PathVariable String userId) {
-
-        List<EntityModel<TodoItem>> todos = repository.findByUserDone(userId).stream()
-                .map(todo -> EntityModel.of(todo,
-                        linkTo(methodOn(TodoItemController.class).all()).withRel("TodoItem")))
-                .collect(Collectors.toList());
-
-        return CollectionModel.of(todos, linkTo(methodOn(TodoItemController.class).all()).withSelfRel());
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    ResponseEntity<?> allDone(@PathVariable String userId) {
+        try {
+            return ResponseEntity.ok(todoService.done(userId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // end::get-done-user[]
 
     // tag::post-new-todo[]
     @PostMapping("/todos")
-    TodoItem newTodo(@RequestBody TodoItem newTodo) {
-
-        return repository.save(newTodo);
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    ResponseEntity<?> newTodo(@RequestBody TodoDto todoDto) {
+        try {
+            return ResponseEntity.ok(todoService.addTodo(todoDto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // end::post-new-todo[]
 
     // tag::check-todo[]
     @PutMapping("/todos")
-    TodoItem replaceTodo(@RequestBody TodoItem newTodo) {
-
-        return repository.findById(newTodo.getId()) //
-                .map(todo -> {
-                    todo.setDone(newTodo.getDone());
-                    return repository.save(todo);
-                }) //
-                .orElseGet(() -> {
-                    newTodo.setDone(newTodo.getDone());
-                    return repository.save(newTodo);
-                });
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    ResponseEntity<?> replaceTodo(@RequestBody TodoDto todoDto) {
+        try {
+            return ResponseEntity.ok(todoService.editTodoStatus(todoDto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // end::check-todo[]
 
     // tag::delete-todo[]
     @DeleteMapping("/todos/{id}")
-    void deleteEmployee(@PathVariable String id) {
-        repository.deleteById(id);
+    @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
+    ResponseEntity<?> deleteEmployee(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(todoService.deleteTodo(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     // end::delete-todo[]
 }
