@@ -1,5 +1,9 @@
 package com.todo.back.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jdk.jfr.BooleanFlag;
+import jdk.jfr.Timestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,11 +15,21 @@ public class TodoItem {
     @Id
     private String id;
 
+    @NotNull
     private String userId;
+
+    @Size(max=100, message = "Content is too long")
     private String content;
+
+    @Timestamp
     private Date due;
+
+    @NotNull
+    @Timestamp
     private Date created;
 
+    @NotNull
+    @BooleanFlag
     private  Boolean done;
 
     public TodoItem(String id, String userId, String content, Date due, Date created) {
