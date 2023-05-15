@@ -1,19 +1,34 @@
 package com.todo.back.payload.request;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.util.Set;
 
 public class SignupRequest {
 
+    @Size(min=3, max=30, message = "Username size is incorrect")
+    @NotNull
     private String username;
 
+    @Size(min=1, max=30, message = "Name size is incorrect")
+    @NotNull
     private String name;
 
+    @Size(min=2, max=30, message = "Surname size is incorrect")
+    @NotNull
     private String surname;
 
+    @Email
+    @Size(min=5, max=100, message = "Email size is incorrect")
+    @NotNull
     private String email;
 
     private Set<String> roles;
 
+    @Size(min=8, max=256, message = "Password size is incorrect")
+    @NotNull
     private String password;
 
     public String getUsername() {
