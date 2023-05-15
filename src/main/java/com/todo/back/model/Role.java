@@ -1,5 +1,6 @@
 package com.todo.back.model;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -8,6 +9,7 @@ public class Role {
     @Id
     private String id;
 
+    @NotNull
     private ERole name;
 
     public Role(ERole name) {

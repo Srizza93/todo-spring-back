@@ -102,7 +102,7 @@ public class UserService {
                 roles));
     }
 
-    public ResponseEntity<MessageResponse> signup(SignupRequest signUpRequest) throws IllegalArgumentException, IOException, MessagingException {
+    public void signup(SignupRequest signUpRequest) throws IllegalArgumentException, IOException, MessagingException {
 
         String username = signUpRequest.getUsername();
         Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{3,30}$", Pattern.CASE_INSENSITIVE);
@@ -198,8 +198,6 @@ public class UserService {
         } catch (Exception e) {
             throw new MessagingException("Error: couldn't send the registration email" + e);
         }
-
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
 }
