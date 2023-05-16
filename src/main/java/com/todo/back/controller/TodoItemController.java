@@ -2,10 +2,11 @@ package com.todo.back.controller;
 
 import com.todo.back.dto.TodoDto;
 import com.todo.back.services.TodoService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static com.todo.back.exception.ControllerExceptionHandler.handleInternalServerException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -22,11 +23,11 @@ public class TodoItemController {
     // tag::get-aggregate-root[]
     @GetMapping("/todos")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> all() {
+    public ResponseEntity<?> getAllTodos() {
         try {
             return ResponseEntity.ok(todoService.todos());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::get-aggregate-root[]
@@ -38,7 +39,7 @@ public class TodoItemController {
         try {
             return ResponseEntity.ok(todoService.today(userId));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::get-done-user[]
@@ -50,7 +51,7 @@ public class TodoItemController {
         try {
             return ResponseEntity.ok(todoService.inbox(userId));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::get-inbox-user[]
@@ -62,7 +63,7 @@ public class TodoItemController {
         try {
             return ResponseEntity.ok(todoService.done(userId));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::get-done-user[]
@@ -74,7 +75,7 @@ public class TodoItemController {
         try {
             return ResponseEntity.ok(todoService.addTodo(todoDto));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::post-new-todo[]
@@ -86,7 +87,7 @@ public class TodoItemController {
         try {
             return ResponseEntity.ok(todoService.editTodoStatus(todoDto));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::check-todo[]
@@ -94,11 +95,11 @@ public class TodoItemController {
     // tag::delete-todo[]
     @DeleteMapping("/todos/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    ResponseEntity<?> deleteEmployee(@PathVariable String id) {
+    ResponseEntity<?> deleteTodo(@PathVariable String id) {
         try {
             return ResponseEntity.ok(todoService.deleteTodo(id));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::delete-todo[]

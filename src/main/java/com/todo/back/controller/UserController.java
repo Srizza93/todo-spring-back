@@ -3,10 +3,11 @@ package com.todo.back.controller;
 import com.todo.back.payload.request.LoginRequest;
 import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.services.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static com.todo.back.exception.ControllerExceptionHandler.handleInternalServerException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -26,7 +27,7 @@ public class UserController {
         try {
             return ResponseEntity.ok(userService.users());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::get-aggregate-root[]
@@ -40,7 +41,7 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new Error(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::get-single-user[]
@@ -56,7 +57,7 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new Error(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return handleInternalServerException(e);
         }
     }
     // end::signup[]
