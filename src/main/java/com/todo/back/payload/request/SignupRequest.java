@@ -31,6 +31,14 @@ public class SignupRequest {
     @NotNull
     private String password;
 
+    public SignupRequest(String username, String name, String surname, String email, String password) {
+        this.username = username;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+    }
+
     public String getUsername() {
         return username;
     }
