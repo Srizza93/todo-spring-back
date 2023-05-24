@@ -25,7 +25,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -105,9 +104,9 @@ public class UserService {
                     userDetails.getEmail(),
                     roles));
         } catch (IllegalArgumentException e) {
-            throw new UserServiceException("Invalid username or password", e);
+            throw new UserServiceException("User service exception: " + e, e);
         } catch (Exception e) {
-            throw new UserServiceException("Login Failed", e);
+            throw new UserServiceException("Login failed: " + e, e);
         }
     }
 
@@ -168,7 +167,6 @@ public class UserService {
                 throw new IllegalArgumentException("The password format is not valid");
             }
 
-            // Create new user's account
             UserProfile user = new UserProfile(username, name, surname, email, encoder.encode(password));
 
             Set<String> strRoles = signUpRequest.getRoles();
