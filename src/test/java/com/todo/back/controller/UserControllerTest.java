@@ -80,6 +80,7 @@ public class UserControllerTest {
                 .andDo(print()).andExpect(status().isOk());
 
         verify(userRepository, times(1)).save(any(UserProfile.class));
+        verify(emailService, times(1)).sendmail(anyString());
     }
 
     @Test
