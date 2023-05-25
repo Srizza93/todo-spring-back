@@ -69,7 +69,7 @@ public class UserService {
 
             return CollectionModel.of(users, linkTo(methodOn(UserController.class).getAllUsers()).withSelfRel());
         } catch (Exception e) {
-            throw new UserServiceException("Failed to fetch users", e);
+            throw new UserServiceException("Failed to fetch users");
         }
     }
 
@@ -105,10 +105,8 @@ public class UserService {
                     userDetails.getUsername(),
                     userDetails.getEmail(),
                     roles));
-        } catch (IllegalArgumentException e) {
-            throw new UserServiceException("User service exception: " + e, e);
         } catch (Exception e) {
-            throw new UserServiceException("Login failed: " + e, e);
+            throw new UserServiceException(e.getMessage());
         }
     }
 
@@ -119,7 +117,7 @@ public class UserService {
             Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{3,30}$", Pattern.CASE_INSENSITIVE);
             Matcher usernameMatcher = usernamePattern.matcher(username);
             boolean usernameMatchFound = usernameMatcher.find();
-            boolean usernameIsUsed = userRepository.existsByUsername(signUpRequest.getUsername());
+            boolean usernameIsUsed = userRepository.existsByUsername(username);
 
             String email = signUpRequest.getEmail();
             Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", Pattern.CASE_INSENSITIVE);
@@ -206,12 +204,12 @@ public class UserService {
             try {
                 emailService.sendmail(email);
             } catch (Exception e) {
-                throw new MessagingException("Error: couldn't send the registration email" + e);
+                throw new MessagingException(e.getMessage());
             }
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid signup request", e);
+            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
-            throw new UserServiceException("Failed to signup user", e);
+            throw new UserServiceException(e.getMessage());
         }
     }
 
