@@ -18,7 +18,7 @@ import java.util.Properties;
 @Service
 public class EmailService {
 
-    public static void sendmail(String email) throws MessagingException, IOException {
+    public void sendmail(String email) throws MessagingException, IOException {
         Dotenv dotenv = Dotenv.load();
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

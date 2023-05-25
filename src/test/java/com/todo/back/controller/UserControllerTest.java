@@ -5,6 +5,8 @@ import com.todo.back.model.UserProfile;
 import com.todo.back.payload.request.LoginRequest;
 import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.repository.UserRepository;
+import com.todo.back.services.EmailService;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ public class UserControllerTest {
     private UserRepository userRepository;
 
     @MockBean
+    private EmailService emailService;
+
+    @MockBean
     private AuthenticationManager authenticationManager;
 
     @MockBean
@@ -67,6 +72,7 @@ public class UserControllerTest {
                 new SignupRequest("toto123", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa");
 
         when(userRepository.save(any(UserProfile.class))).thenReturn(new UserProfile("toto123", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa"));
+        doNothing().when(emailService).sendmail(anyString());
 
         this.mockMvc.perform(post("/signup")
                 .content(new ObjectMapper().writeValueAsString(signupRequest))

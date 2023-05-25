@@ -40,6 +40,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -53,8 +54,9 @@ public class UserService {
     @Autowired
     PasswordEncoder encoder;
 
-    UserService(UserRepository userRepository) {
+    UserService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public CollectionModel<EntityModel<UserProfile>> users() throws UserServiceException {
@@ -202,7 +204,7 @@ public class UserService {
             userRepository.save(user);
 
             try {
-                EmailService.sendmail(email);
+                emailService.sendmail(email);
             } catch (Exception e) {
                 throw new MessagingException("Error: couldn't send the registration email" + e);
             }
