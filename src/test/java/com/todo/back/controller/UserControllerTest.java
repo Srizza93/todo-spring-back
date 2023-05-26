@@ -6,18 +6,12 @@ import com.todo.back.payload.request.LoginRequest;
 import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.services.EmailService;
-import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,35 +30,30 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
+    private PasswordEncoder encoder;
+
+    @MockBean
     private UserRepository userRepository;
 
     @MockBean
     private EmailService emailService;
 
-    @MockBean
-    private AuthenticationManager authenticationManager;
+    @Test
+    public void shouldLogin() throws Exception {
+        UserProfile user = new UserProfile("Srizza93", "toto", "tutu", "toto@gmail.com", "Aa1!aaaaaaaa");
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername(user.getUsername());
+        loginRequest.setPassword(user.getPassword());
 
-    @MockBean
-    private PasswordEncoder encoder;
+        when(userRepository.findByUsername(loginRequest.getUsername())).thenReturn(Optional.of(user));
+        when(encoder.matches(any(CharSequence.class), anyString())).thenReturn(true);
 
-//    @Test
-//    public void shouldLogin() throws Exception {
-//        UserProfile user = new UserProfile("toto123", "toto", "tutu", "toto@gmail.com", "Aa1!aaaaaaaa");
-//        LoginRequest loginRequest = new LoginRequest();
-//        loginRequest.setUsername(user.getUsername());
-//        loginRequest.setPassword(user.getPassword());
-//        Authentication authentication = new UsernamePasswordAuthenticationToken(
-//                loginRequest.getUsername(),
-//                loginRequest.getPassword()
-//        );
-//
-//        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-//
-//        this.mockMvc.perform(post("/login")
-//                        .content(new ObjectMapper().writeValueAsString(loginRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isOk());
-//    }
+        this.mockMvc.perform(post("/login")
+                        .content(new ObjectMapper().writeValueAsString(loginRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
 
     @Test
     public void shouldSignup() throws Exception {

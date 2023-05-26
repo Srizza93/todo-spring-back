@@ -52,7 +52,7 @@ public class UserService {
     RoleRepository roleRepository;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder encoder;
 
     UserService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
@@ -82,7 +82,6 @@ public class UserService {
             UserProfile userProfile = user.orElseThrow(() -> new IllegalArgumentException("Invalid username"));
 
             String inputPassword = loginRequest.getPassword();
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
             boolean passwordIsValid = encoder.matches(inputPassword, userProfile.getPassword());
 
             if (!passwordIsValid) {
