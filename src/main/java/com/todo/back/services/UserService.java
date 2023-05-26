@@ -11,7 +11,6 @@ import com.todo.back.repository.RoleRepository;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.security.jwt.JwtUtils;
 import com.todo.back.security.services.UserDetailsImpl;
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -21,10 +20,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -208,7 +207,7 @@ public class UserService {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
-            throw new UserServiceException(e.getMessage());
+            throw new UserServiceException("Failed to signup " + e.getMessage());
         }
     }
 
