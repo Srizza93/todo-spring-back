@@ -7,6 +7,7 @@ import com.todo.back.payload.request.LoginRequest;
 import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.services.EmailService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -60,6 +62,16 @@ public class UserControllerTest {
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
         assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/login");
+
+        String responseBody = mockMvc1.getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode responseJson = objectMapper.readTree(responseBody);
+        JsonNode body = responseJson.path("body");
+        String tokenType = body.path("tokenType").asText();
+        String accessToken = body.path("accessToken").asText();
+
+        assertEquals(tokenType, "Bearer");
+        Assertions.assertFalse(accessToken.isEmpty());
 
         verify(userRepository, times(2)).findByUsername(loginRequest.getUsername());
         verify(encoder, times(2)).matches(any(CharSequence.class), anyString());
