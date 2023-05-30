@@ -24,23 +24,23 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Service
 public class TodoService {
 
-    private final ItemRepository repository;
+    private final ItemRepository todoItemRepository;
 
-    public TodoService(ItemRepository repository) {
-        this.repository = repository;
+    public TodoService(ItemRepository todoItemRepository) {
+        this.todoItemRepository = todoItemRepository;
     }
 
     public CollectionModel<EntityModel<TodoItem>> todos() throws UserServiceException {
 
         try {
-            List<EntityModel<TodoItem>> todos = repository.findAll().stream()
+            List<EntityModel<TodoItem>> todos = todoItemRepository.findAll().stream()
                     .map(todo -> EntityModel.of(todo,
                             linkTo(methodOn(TodoItemController.class).getAllTodos()).withRel("TodoItem")))
                     .collect(Collectors.toList());
 
             return CollectionModel.of(todos, linkTo(methodOn(TodoItemController.class).getAllTodos()).withSelfRel());
         } catch (Exception e) {
-            throw new UserServiceException("Failed to fetch todos", e);
+            throw new UserServiceException("Failed to fetch todos");
         }
     }
 
@@ -49,7 +49,7 @@ public class TodoService {
             LocalDate localDate = LocalDate.now();
             LocalDateTime today = localDate.atTime(LocalTime.MAX);
 
-            List<EntityModel<TodoItem>> todos = repository.findByUserIdAndDoneAndDueLessThanEqual(userId, false, today).stream()
+            List<EntityModel<TodoItem>> todos = todoItemRepository.findByUserIdAndDoneAndDueLessThanEqual(userId, false, today).stream()
                     .map(todo -> EntityModel.of(todo,
                             linkTo(methodOn(TodoItemController.class).getAllTodos()).withRel("TodoItem")))
                     .collect(Collectors.toList());
@@ -63,7 +63,7 @@ public class TodoService {
     public CollectionModel<EntityModel<TodoItem>> inbox(String userId) throws UserServiceException {
 
         try {
-            List<EntityModel<TodoItem>> todos = repository.findByUserIdAndDone(userId, false).stream()
+            List<EntityModel<TodoItem>> todos = todoItemRepository.findByUserIdAndDone(userId, false).stream()
                     .map(todo -> EntityModel.of(todo,
                             linkTo(methodOn(TodoItemController.class).getAllTodos()).withRel("TodoItem")))
                     .collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class TodoService {
     public CollectionModel<EntityModel<TodoItem>> done(String userId) throws UserServiceException {
 
         try {
-            List<EntityModel<TodoItem>> todos = repository.findByUserIdAndDone(userId, true).stream()
+            List<EntityModel<TodoItem>> todos = todoItemRepository.findByUserIdAndDone(userId, true).stream()
                     .map(todo -> EntityModel.of(todo,
                             linkTo(methodOn(TodoItemController.class).getAllTodos()).withRel("TodoItem")))
                     .collect(Collectors.toList());
@@ -96,7 +96,7 @@ public class TodoService {
                 throw new IllegalArgumentException("The content is too long");
             }
 
-            return repository.save(todo);
+            return todoItemRepository.save(todo);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
@@ -107,17 +107,17 @@ public class TodoService {
     public TodoItem editTodoStatus(TodoDto todoDto) throws UserServiceException {
 
         try {
-            return repository.findById(todoDto.getId()) //
+            return todoItemRepository.findById(todoDto.getId()) //
                     .map(todo -> {
                         todo.setDone(todoDto.getDone());
-                        return repository.save(todo);
+                        return todoItemRepository.save(todo);
                     }) //
                     .orElseGet(() -> {
                         todoDto.setDone(todoDto.getDone());
 
                         TodoItem todo = getTodoFromDto(todoDto);
 
-                        return repository.save(todo);
+                        return todoItemRepository.save(todo);
                     });
         } catch (Exception e) {
             throw new UserServiceException("Failed to edit the todo status");
@@ -127,7 +127,7 @@ public class TodoService {
     public ResponseEntity<?> deleteTodo(String id) throws UserServiceException {
 
         try {
-            repository.deleteById(id);
+            todoItemRepository.deleteById(id);
 
             return ResponseEntity.ok("Successfully deleted the todo");
         } catch (Exception e) {
