@@ -4,8 +4,6 @@ import com.todo.back.controller.TodoItemController;
 import com.todo.back.dto.TodoDto;
 import com.todo.back.model.TodoItem;
 import com.todo.back.repository.ItemRepository;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.springframework.hateoas.CollectionModel;
@@ -18,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -29,11 +26,8 @@ public class TodoService {
 
     private final ItemRepository repository;
 
-    private final Validator validator;
-
     public TodoService(ItemRepository repository) {
         this.repository = repository;
-        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     public CollectionModel<EntityModel<TodoItem>> todos() throws UserServiceException {
@@ -95,30 +89,24 @@ public class TodoService {
     }
 
     public TodoItem addTodo(TodoDto todoDto) throws UserServiceException {
-
         try {
             TodoItem todo = getTodoFromDto(todoDto);
-            Set<ConstraintViolation<String>> violations = validator.validate(todo.getContent());
 
             if (todo.getContent().length() > 100) {
-                throw new ConstraintViolationException("The content is too long", violations);
+                throw new IllegalArgumentException("The content is too long");
             }
 
-            todo.setDone(false);
-
             return repository.save(todo);
+        } catch (IllegalArgumentException e) {
+            throw e;
         } catch (Exception e) {
-            throw new UserServiceException("Failed to add a new todo", e);
+            throw new UserServiceException("Failed to add a new todo");
         }
     }
 
     public TodoItem editTodoStatus(TodoDto todoDto) throws UserServiceException {
 
         try {
-            if (todoDto == null) {
-                throw new IllegalArgumentException("Todo is invalid, can't edit the status");
-            }
-
             return repository.findById(todoDto.getId()) //
                     .map(todo -> {
                         todo.setDone(todoDto.getDone());
@@ -132,20 +120,16 @@ public class TodoService {
                         return repository.save(todo);
                     });
         } catch (Exception e) {
-            throw new UserServiceException("Failed to edit the todo status", e);
+            throw new UserServiceException("Failed to edit the todo status");
         }
     }
 
     public ResponseEntity<?> deleteTodo(String id) throws UserServiceException {
 
         try {
-            if (id == null) {
-                throw new IllegalArgumentException("Id is missing, can't delete");
-            }
-
             repository.deleteById(id);
 
-            return ResponseEntity.ok("Successfully delete the todo");
+            return ResponseEntity.ok("Successfully deleted the todo");
         } catch (Exception e) {
             throw new UserServiceException("Failed to delete the todo", e);
         }
