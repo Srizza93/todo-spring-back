@@ -3,7 +3,6 @@ package com.todo.back.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.todo.back.dto.TodoDto;
 import com.todo.back.model.TodoItem;
-import com.todo.back.repository.ItemRepository;
 import com.todo.back.services.TodoService;
 import com.todo.back.services.UserServiceException;
 import org.junit.jupiter.api.Test;
@@ -34,9 +33,6 @@ public class TodoItemControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private ItemRepository todoItemRepository;
 
     @MockBean
     private TodoService todoService;
@@ -77,6 +73,8 @@ public class TodoItemControllerTest {
         MvcResult mockMvc1 = this.mockMvc.perform(get("/todos"))
                 .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
 
+        verify(todoService, times(1)).todos();
+
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
         assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
@@ -102,6 +100,8 @@ public class TodoItemControllerTest {
 
         MvcResult mockMvc1 = this.mockMvc.perform(get("/todos/INBOX/{userId}", mockId))
                 .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
+
+        verify(todoService, times(1)).inbox(mockId);
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
@@ -129,6 +129,8 @@ public class TodoItemControllerTest {
         MvcResult mockMvc1 = this.mockMvc.perform(get("/todos/INBOX/{userId}", mockId))
                 .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
 
+        verify(todoService, times(1)).inbox(mockId);
+
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
         assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/INBOX/123");
@@ -155,38 +157,44 @@ public class TodoItemControllerTest {
         MvcResult mockMvc1 = this.mockMvc.perform(get("/todos/DONE/{userId}", mockId))
                 .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
 
+        verify(todoService, times(1)).done(mockId);
+
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
         assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/DONE/123");
     }
 
-//    @Test
-//    public void shouldAddANewTodo() throws Exception {
-//        when(todoService.addTodo(todoItemDto)).thenReturn(todoItem1);
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/todos")
-//                        .content(new ObjectMapper().writeValueAsString(todoItemDto))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isOk()).andReturn();
-//
-//        assertNull(mockMvc1.getResponse().getContentType());
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
-//    }
-//
-//    @Test
-//    public void shouldntAddATodoUserServiceException() throws Exception {
-//        doThrow(IllegalArgumentException.class).when(todoService).addTodo(todoItemDto);
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/todos")
-//                        .content(new ObjectMapper().writeValueAsString(todoItemDto))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
-//    }
+    @Test
+    public void shouldAddANewTodo() throws Exception {
+        when(todoService.addTodo(any(TodoDto.class))).thenReturn(todoItem1);
+
+        MvcResult mockMvc1 = this.mockMvc.perform(post("/todos")
+                        .content(new ObjectMapper().writeValueAsString(todoItemDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isOk()).andReturn();
+
+        verify(todoService, times(1)).addTodo(any(TodoDto.class));
+
+        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
+        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
+    }
+
+    @Test
+    public void shouldntAddATodoUserServiceException() throws Exception {
+        doThrow(UserServiceException.class).when(todoService).addTodo(any(TodoDto.class));
+
+        MvcResult mockMvc1 = this.mockMvc.perform(post("/todos")
+                        .content(new ObjectMapper().writeValueAsString(todoItemDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
+
+        verify(todoService, times(1)).addTodo(any(TodoDto.class));
+
+        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
+        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
+    }
 
     @Test
     public void shouldEditATodo() throws Exception {
@@ -204,28 +212,42 @@ public class TodoItemControllerTest {
         assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
     }
 
-//    @Test
-//    public void shouldntEditATodo() throws Exception {
-//        doThrow(IllegalArgumentException.class).when(todoService).editTodoStatus(todoItemDto);
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(put("/todos")
-//                        .content(new ObjectMapper().writeValueAsString(todoItemDto))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
-//    }
+    @Test
+    public void shouldntEditATodo() throws Exception {
+        doThrow(UserServiceException.class).when(todoService).editTodoStatus(any(TodoDto.class));
+
+        MvcResult mockMvc1 = this.mockMvc.perform(put("/todos")
+                        .content(new ObjectMapper().writeValueAsString(todoItemDto))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
+
+        verify(todoService, times(1)).editTodoStatus(any(TodoDto.class));
+
+        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
+        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos");
+    }
 
     @Test
     public void shouldDeleteATodo() throws Exception {
         when(todoService.deleteTodo(mockId)).thenReturn(ResponseEntity.ok(null));
 
-        MvcResult mockMvc1 = this.mockMvc.perform(delete("/todos/{id}", mockId)
-                        .content(new ObjectMapper().writeValueAsString(todoItemDto))
-                        .contentType(MediaType.APPLICATION_JSON))
+        MvcResult mockMvc1 = this.mockMvc.perform(delete("/todos/{id}", mockId))
                 .andDo(print()).andExpect(status().isOk()).andReturn();
+
+        verify(todoService, times(1)).deleteTodo(mockId);
+
+        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
+        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/123");
+    }
+
+    @Test
+    public void shouldntDeleteATodo() throws Exception {
+        doThrow(UserServiceException.class).when(todoService).deleteTodo(mockId);
+
+        MvcResult mockMvc1 = this.mockMvc.perform(delete("/todos/{id}", mockId))
+                .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
 
         verify(todoService, times(1)).deleteTodo(mockId);
 
