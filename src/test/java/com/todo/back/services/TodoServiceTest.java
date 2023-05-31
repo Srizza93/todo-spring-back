@@ -6,13 +6,10 @@ import com.todo.back.repository.ItemRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,12 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
 @WithMockUser(username="admin",roles={"USER","ADMIN"})
 public class TodoServiceTest {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     TodoItem todoItem1 = new TodoItem("1", "user1", "Todo 1",  null, null);
 
@@ -43,8 +36,6 @@ public class TodoServiceTest {
 
     @InjectMocks
     private TodoService todoService;
-
-    private final TodoService todoServiceMock = mock(TodoService.class);
 
     private final String mockId = "123";
 
