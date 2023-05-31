@@ -115,23 +115,32 @@ public class UserServiceTest {
         verify(authentication, times(1)).getPrincipal();;
     }
 
-//    @Test
-//    public void shouldntLogin() throws Exception {
-//        UserProfile user = new UserProfile("Srizza93", "toto", "tutu", "toto@gmail.com", "Aa1!aaaaaaaa");
-//        LoginRequest loginRequest = new LoginRequest();
-//        loginRequest.setUsername(user.getUsername());
-//        loginRequest.setPassword(user.getPassword());
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/login")
-//                        .content(new ObjectMapper().writeValueAsString(loginRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print())
-//                .andExpect(status().isInternalServerError()).andReturn();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/login");
-//    }
+    @Test
+    public void shouldntLoginInvalidUsername() {
+        loginRequest.setUsername(user1.getUsername());
+        loginRequest.setPassword(user1.getPassword());
+
+        Exception exception = assertThrows(UserServiceException.class, () -> userService.login(loginRequest));
+
+        assertEquals("Invalid username", exception.getMessage());
+
+        verify(userRepository, times(1)).findByUsername(anyString());
+    }
+
+    @Test
+    public void shouldntLoginInvalidPassword() {
+        loginRequest.setUsername(user1.getUsername());
+        loginRequest.setPassword(user1.getPassword());
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user1));
+
+        Exception exception = assertThrows(UserServiceException.class, () -> userService.login(loginRequest));
+
+        assertEquals("Invalid password", exception.getMessage());
+
+        verify(userRepository, times(1)).findByUsername(anyString());
+        verify(encoder, times(1)).matches(anyString(), eq(user1.getPassword()));
+    }
 
 //    @Test
 //    public void shouldSignup() throws Exception {
