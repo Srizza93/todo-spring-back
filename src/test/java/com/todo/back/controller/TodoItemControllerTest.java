@@ -82,30 +82,30 @@ public class TodoItemControllerTest {
 
     @Test
     public void shouldGetAllTodayTodos() throws Exception {
-        when(todoService.inbox(mockId)).thenReturn(todos);
+        when(todoService.today(mockId)).thenReturn(todos);
 
-        MvcResult mockMvc1 = this.mockMvc.perform(get("/todos/INBOX/{userId}", mockId))
+        MvcResult mockMvc1 = this.mockMvc.perform(get("/todos/TODAY/{userId}", mockId))
                 .andDo(print()).andExpect(status().isOk()).andReturn();
 
-        verify(todoService, times(1)).inbox(mockId);
+        verify(todoService, times(1)).today(mockId);
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/hal+json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/INBOX/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/TODAY/123");
     }
 
     @Test
     public void shouldntGetAllTodayTodosUserServiceException() throws Exception {
-        doThrow(UserServiceException.class).when(todoService).inbox(mockId);
+        doThrow(UserServiceException.class).when(todoService).today(mockId);
 
-        MvcResult mockMvc1 = this.mockMvc.perform(get("/todos/INBOX/{userId}", mockId))
+        MvcResult mockMvc1 = this.mockMvc.perform(get("/todos/TODAY/{userId}", mockId))
                 .andDo(print()).andExpect(status().isInternalServerError()).andReturn();
 
-        verify(todoService, times(1)).inbox(mockId);
+        verify(todoService, times(1)).today(mockId);
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/INBOX/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/TODAY/123");
     }
 
     @Test

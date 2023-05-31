@@ -4,8 +4,6 @@ import com.todo.back.controller.TodoItemController;
 import com.todo.back.dto.TodoDto;
 import com.todo.back.model.TodoItem;
 import com.todo.back.repository.ItemRepository;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;

@@ -102,7 +102,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldntLogin() throws Exception {
+    public void shouldntLoginInternalServerError() throws Exception {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(user1.getUsername());
         loginRequest.setPassword(user1.getPassword());
@@ -114,6 +114,27 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isInternalServerError()).andReturn();
+
+        verify(userService, times(1)).login(any(LoginRequest.class));
+
+        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
+        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/login");
+    }
+
+    @Test
+    public void shouldntLoginIllegalArgumentException() throws Exception {
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername(user1.getUsername());
+        loginRequest.setPassword(user1.getPassword());
+
+        doThrow(IllegalArgumentException.class).when(userService).login(any(LoginRequest.class));
+
+        MvcResult mockMvc1 = this.mockMvc.perform(post("/login")
+                        .content(new ObjectMapper().writeValueAsString(loginRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest()).andReturn();
 
         verify(userService, times(1)).login(any(LoginRequest.class));
 
@@ -143,7 +164,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldntSignup() throws Exception {
+    public void shouldntSignupInternalServerError() throws Exception {
         SignupRequest signupRequest =
                 new SignupRequest("toto123", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa");
 
@@ -154,6 +175,26 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isInternalServerError()).andReturn();
+
+        verify(userService, times(1)).signup(any(SignupRequest.class));
+
+        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
+        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/signup");
+    }
+
+    @Test
+    public void shouldntSignupIllegalArgumentException() throws Exception {
+        SignupRequest signupRequest =
+                new SignupRequest("toto123", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa");
+
+        doThrow(IllegalArgumentException.class).when(userService).signup(any(SignupRequest.class));
+
+        MvcResult mockMvc1 = this.mockMvc.perform(post("/signup")
+                        .content(new ObjectMapper().writeValueAsString(signupRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest()).andReturn();
 
         verify(userService, times(1)).signup(any(SignupRequest.class));
 
