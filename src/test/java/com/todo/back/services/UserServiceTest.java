@@ -1,16 +1,20 @@
 package com.todo.back.services;
 
+import com.todo.back.model.ERole;
+import com.todo.back.model.Role;
 import com.todo.back.model.UserProfile;
 import com.todo.back.payload.request.LoginRequest;
+import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.payload.response.JwtResponse;
+import com.todo.back.repository.RoleRepository;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.security.jwt.JwtUtils;
 import com.todo.back.security.services.UserDetailsImpl;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.CollectionModel;
@@ -22,11 +26,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -40,14 +45,16 @@ public class UserServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
-    @MockBean
-    Authentication authentication;
-
     @Mock
     JwtUtils jwtUtils;
 
+    EmailService emailService = mock(EmailService.class);
+
     @MockBean
-    private EmailService emailService;
+    Authentication authentication;
+
+    @InjectMocks
+    private UserService userService;
 
     UserProfile user1 = new UserProfile("toto93", "toto", "tutu", "toto@gmail.com", "A!1aaaaaaaaa");
 
@@ -55,16 +62,18 @@ public class UserServiceTest {
 
     List<UserProfile> usersList = Arrays.asList(user1, user2);
 
-    List<GrantedAuthority> rolesList = new ArrayList<>(Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
-
     private final UserRepository userRepository = mock(UserRepository.class);
 
-    @InjectMocks
-    private UserService userService;
+    private final RoleRepository roleRepository = mock(RoleRepository.class);
 
     LoginRequest loginRequest = new LoginRequest();
 
+    SignupRequest signupRequest =
+            new SignupRequest("toto123", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa");
+
     private final String mockId = "123";
+
+    private final Role userRole = new Role(ERole.ROLE_USER);
 
     public UserServiceTest() {
         // Initialize mocks
@@ -142,139 +151,124 @@ public class UserServiceTest {
         verify(encoder, times(1)).matches(anyString(), eq(user1.getPassword()));
     }
 
-//    @Test
-//    public void shouldSignup() throws Exception {
-//        SignupRequest signupRequest =
-//                new SignupRequest("toto123", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa");
-//
-//        when(userRepository.save(any(UserProfile.class))).thenReturn(new UserProfile("toto123", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa"));
-//        doNothing().when(emailService).sendmail(anyString());
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/signup")
-//                        .content(new ObjectMapper().writeValueAsString(signupRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isOk()).andReturn();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/signup");
-//
-//        verify(userRepository, times(1)).save(any(UserProfile.class));
-//        verify(emailService, times(1)).sendmail(anyString());
-//    }
+    @Test
+    public void shouldSignup() {
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
 
-//    @Test
-//    public void shouldntSignupInvalidUsername() throws Exception {
-//        SignupRequest signupRequest =
-//                new SignupRequest("!", "toto", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa");
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/signup")
-//                        .content(new ObjectMapper().writeValueAsString(signupRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
-//
-//        String responseBody = mockMvc1.getResponse().getContentAsString();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode responseJson = objectMapper.readTree(responseBody);
-//        String errorMessage = responseJson.path("message").asText();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/signup");
-//        assertEquals(errorMessage, "The username format is not valid");
-//
-//        verify(userRepository, never()).save(any(UserProfile.class));
-//    }
+        userService.signup(signupRequest);
 
-//    @Test
-//    public void shouldntSignupInvalidName() throws Exception {
-//        SignupRequest signupRequest =
-//                new SignupRequest("toto123", "!", "tutu", "toto@gmail.com", "Aa!1aaaaaaaa");
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/signup")
-//                        .content(new ObjectMapper().writeValueAsString(signupRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
-//
-//        String responseBody = mockMvc1.getResponse().getContentAsString();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode responseJson = objectMapper.readTree(responseBody);
-//        String errorMessage = responseJson.path("message").asText();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/signup");
-//        assertEquals(errorMessage, "The name format is not valid");
-//
-//        verify(userRepository, never()).save(any(UserProfile.class));
-//    }
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+        verify(roleRepository, times(1)).findByName(ERole.ROLE_USER);
+    }
 
-//    @Test
-//    public void shouldntSignupInvalidSurname() throws Exception {
-//        SignupRequest signupRequest =
-//                new SignupRequest("toto123", "toto", "!", "toto@gmail.com", "Aa!1aaaaaaaa");
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/signup")
-//                        .content(new ObjectMapper().writeValueAsString(signupRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
-//
-//        String responseBody = mockMvc1.getResponse().getContentAsString();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode responseJson = objectMapper.readTree(responseBody);
-//        String errorMessage = responseJson.path("message").asText();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/signup");
-//        assertEquals(errorMessage, "The surname format is not valid");
-//
-//        verify(userRepository, never()).save(any(UserProfile.class));
-//    }
+    @Test
+    public void shouldntSignupUsedUsername() {
+        when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
-//    @Test
-//    public void shouldntSignupInvalidEmail() throws Exception {
-//        SignupRequest signupRequest =
-//                new SignupRequest("toto123", "toto", "tutu", "totogmail.com", "Aa!1aaaaaaaa");
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/signup")
-//                        .content(new ObjectMapper().writeValueAsString(signupRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
-//
-//        String responseBody = mockMvc1.getResponse().getContentAsString();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode responseJson = objectMapper.readTree(responseBody);
-//        String errorMessage = responseJson.path("message").asText();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/signup");
-//        assertEquals(errorMessage, "The email format is not valid");
-//
-//        verify(userRepository, never()).save(any(UserProfile.class));
-//    }
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupRequest));
 
-//    @Test
-//    public void shouldntSignupInvalidPassword() throws Exception {
-//        SignupRequest signupRequest =
-//                new SignupRequest("toto123", "toto", "tutu", "toto@gmail.com", "password");
-//
-//        MvcResult mockMvc1 = this.mockMvc.perform(post("/signup")
-//                        .content(new ObjectMapper().writeValueAsString(signupRequest))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
-//
-//        String responseBody = mockMvc1.getResponse().getContentAsString();
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode responseJson = objectMapper.readTree(responseBody);
-//        String errorMessage = responseJson.path("message").asText();
-//
-//        assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
-//        assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-//        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/signup");
-//        assertEquals(errorMessage, "The password format is not valid");
-//
-//        verify(userRepository, never()).save(any(UserProfile.class));
-//    }
+        assertEquals("This username has been used already", exception.getMessage());
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+    }
+
+    @Test
+    public void shouldntSignupInvalidUsernameFormat() {
+        signupRequest.setUsername("!");
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupRequest));
+
+        assertEquals("The username format is not valid", exception.getMessage());
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+    }
+
+    @Test
+    public void shouldntSignupUsedEmail() {
+        when(userRepository.existsByEmail(anyString())).thenReturn(true);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupRequest));
+
+        assertEquals("This email has been used already", exception.getMessage());
+
+        verify(userRepository, times(1)).existsByEmail(anyString());
+    }
+
+    @Test
+    public void shouldntSignupInvalidEmailFormat() {
+        signupRequest.setEmail("!");
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupRequest));
+
+        assertEquals("The email format is not valid", exception.getMessage());
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+    }
+
+    @Test
+    public void shouldntSignupInvalidNameFormat() {
+        signupRequest.setName("!");
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupRequest));
+
+        assertEquals("The name format is not valid", exception.getMessage());
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+    }
+
+    @Test
+    public void shouldntSignupInvalidSurnameFormat() {
+        signupRequest.setSurname("!");
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupRequest));
+
+        assertEquals("The surname format is not valid", exception.getMessage());
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+    }
+
+    @Test
+    public void shouldntSignupInvalidPasswordFormat() {
+        signupRequest.setPassword("!");
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(signupRequest));
+
+        assertEquals("The password format is not valid", exception.getMessage());
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+    }
+
+    @Test
+    public void shouldntSendConfirmationEmail() throws Exception {
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
+
+        doThrow(UserServiceException.class).when(emailService).sendmail(anyString());
+
+        assertThrows(UserServiceException.class, () -> userService.signup(signupRequest));
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+        verify(roleRepository, times(1)).findByName(ERole.ROLE_USER);
+        verify(emailService, times(1)).sendmail(anyString());
+    }
 }
