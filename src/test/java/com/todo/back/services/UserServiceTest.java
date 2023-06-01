@@ -10,7 +10,6 @@ import com.todo.back.repository.RoleRepository;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.security.jwt.JwtUtils;
 import com.todo.back.security.services.UserDetailsImpl;
-import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,10 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -254,6 +250,48 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).existsByUsername(anyString());
         verify(userRepository, times(1)).existsByEmail(anyString());
+    }
+
+    @Test
+    public void shouldSignupWithAdminRolePreset() {
+        signupRequest.setRole(Collections.singleton("admin"));
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(roleRepository.findByName(ERole.ROLE_ADMIN)).thenReturn(Optional.of(userRole));
+
+        userService.signup(signupRequest);
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+        verify(roleRepository, times(1)).findByName(ERole.ROLE_ADMIN);
+    }
+
+    @Test
+    public void shouldSignupWithModeratorRolePreset() {
+        signupRequest.setRole(Collections.singleton("mod"));
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(roleRepository.findByName(ERole.ROLE_MODERATOR)).thenReturn(Optional.of(userRole));
+
+        userService.signup(signupRequest);
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+        verify(roleRepository, times(1)).findByName(ERole.ROLE_MODERATOR);
+    }
+
+    @Test
+    public void shouldSignupWithUserRolePreset() {
+        signupRequest.setRole(Collections.singleton("ROLE_USER"));
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
+
+        userService.signup(signupRequest);
+
+        verify(userRepository, times(1)).existsByUsername(anyString());
+        verify(userRepository, times(1)).existsByEmail(anyString());
+        verify(roleRepository, times(1)).findByName(ERole.ROLE_USER);
     }
 
     @Test
