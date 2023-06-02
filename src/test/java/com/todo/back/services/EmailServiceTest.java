@@ -1,14 +1,10 @@
 package com.todo.back.services;
 
 import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
-import java.util.Properties;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

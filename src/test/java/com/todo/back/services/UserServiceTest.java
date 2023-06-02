@@ -72,7 +72,6 @@ public class UserServiceTest {
     private final Role userRole = new Role(ERole.ROLE_USER);
 
     public UserServiceTest() {
-        // Initialize mocks
         MockitoAnnotations.openMocks(this);
     }
 
