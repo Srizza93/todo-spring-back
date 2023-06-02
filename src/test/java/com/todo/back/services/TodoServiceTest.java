@@ -130,6 +130,7 @@ public class TodoServiceTest {
 
         TodoItem capturedTodoItem = todoItemCaptor.getValue();
         assertEquals(todoItem.getContent(), capturedTodoItem.getContent());
+        assertEquals(capturedTodoItem.getDone(), false);
 
         verify(todoItemRepository, times(1)).save(capturedTodoItem);
     }

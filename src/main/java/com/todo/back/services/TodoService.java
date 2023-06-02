@@ -94,6 +94,8 @@ public class TodoService {
                 throw new IllegalArgumentException("The content is too long");
             }
 
+            todo.setDone(false);
+
             return todoItemRepository.save(todo);
         } catch (IllegalArgumentException e) {
             throw e;
