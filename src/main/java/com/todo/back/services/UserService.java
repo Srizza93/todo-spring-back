@@ -11,7 +11,6 @@ import com.todo.back.repository.RoleRepository;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.security.jwt.JwtUtils;
 import com.todo.back.security.services.UserDetailsImpl;
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -21,11 +20,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import javax.mail.MessagingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +39,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -52,10 +51,11 @@ public class UserService {
     RoleRepository roleRepository;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder encoder;
 
-    UserService(UserRepository userRepository) {
+    UserService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public CollectionModel<EntityModel<UserProfile>> users() throws UserServiceException {
@@ -68,7 +68,7 @@ public class UserService {
 
             return CollectionModel.of(users, linkTo(methodOn(UserController.class).getAllUsers()).withSelfRel());
         } catch (Exception e) {
-            throw new UserServiceException("Failed to fetch users", e);
+            throw new UserServiceException("Failed to fetch users");
         }
     }
 
@@ -81,7 +81,6 @@ public class UserService {
             UserProfile userProfile = user.orElseThrow(() -> new IllegalArgumentException("Invalid username"));
 
             String inputPassword = loginRequest.getPassword();
-            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
             boolean passwordIsValid = encoder.matches(inputPassword, userProfile.getPassword());
 
             if (!passwordIsValid) {
@@ -104,10 +103,8 @@ public class UserService {
                     userDetails.getUsername(),
                     userDetails.getEmail(),
                     roles));
-        } catch (IllegalArgumentException e) {
-            throw new UserServiceException("Invalid username or password", e);
         } catch (Exception e) {
-            throw new UserServiceException("Login Failed", e);
+            throw new UserServiceException(e.getMessage());
         }
     }
 
@@ -118,7 +115,7 @@ public class UserService {
             Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]{3,30}$", Pattern.CASE_INSENSITIVE);
             Matcher usernameMatcher = usernamePattern.matcher(username);
             boolean usernameMatchFound = usernameMatcher.find();
-            boolean usernameIsUsed = userRepository.existsByUsername(signUpRequest.getUsername());
+            boolean usernameIsUsed = userRepository.existsByUsername(username);
 
             String email = signUpRequest.getEmail();
             Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", Pattern.CASE_INSENSITIVE);
@@ -168,7 +165,6 @@ public class UserService {
                 throw new IllegalArgumentException("The password format is not valid");
             }
 
-            // Create new user's account
             UserProfile user = new UserProfile(username, name, surname, email, encoder.encode(password));
 
             Set<String> strRoles = signUpRequest.getRoles();
@@ -204,14 +200,14 @@ public class UserService {
             userRepository.save(user);
 
             try {
-                EmailService.sendmail(email);
+                emailService.sendmail(email);
             } catch (Exception e) {
-                throw new MessagingException("Error: couldn't send the registration email" + e);
+                throw new MessagingException(e.getMessage());
             }
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid signup request", e);
+            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
-            throw new UserServiceException("Failed to signup user", e);
+            throw new UserServiceException("Failed to signup " + e.getMessage());
         }
     }
 

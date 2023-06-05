@@ -18,19 +18,16 @@ import java.util.Properties;
 @Service
 public class EmailService {
 
-    public static void sendmail(String email) throws MessagingException, IOException {
-        Dotenv dotenv = Dotenv.load();
+    Dotenv dotenv = Dotenv.load();
+
+    public void sendmail(String email) throws MessagingException, IOException {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
 
-        Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
-            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
-                return new jakarta.mail.PasswordAuthentication(dotenv.get("GM_ACC"), dotenv.get("GM_PASS"));
-            }
-        });
+        Session session = getEmailSession(props);
 
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(dotenv.get("GM_ACC"), false));
@@ -46,6 +43,18 @@ public class EmailService {
         msg.setContent(emailBody, "text/html");
         msg.setSentDate(new Date());
 
+        sendMessage(msg);
+    }
+
+    public Session getEmailSession(Properties props) {
+        return Session.getInstance(props, new jakarta.mail.Authenticator() {
+            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new jakarta.mail.PasswordAuthentication(dotenv.get("GM_ACC"), dotenv.get("GM_PASS"));
+            }
+        });
+    }
+
+    public void sendMessage(Message msg) throws MessagingException {
         Transport.send(msg);
     }
 }
