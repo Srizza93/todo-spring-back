@@ -26,6 +26,9 @@ jobs:
           server-password: ${{ secrets.GITHUB_TOKEN }}
           overwrite-settings: true
           job-status: 'success'
+      - name: 'Create env file'
+        run: |
+            echo "${{ secrets.ENV_FILE }}" > .env
       - name: Cache SonarQube packages
         uses: actions/cache@v2
         with:
