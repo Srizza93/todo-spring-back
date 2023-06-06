@@ -33,6 +33,8 @@ jobs:
     - name: Create secrets.properties file
       run: |
         echo "${{ secrets.SECRETS_PROPS_FILE }}" > ./src/main/resources/secrets.properties
+    - name: Run tests
+      run: mvn test
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
