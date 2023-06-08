@@ -1,19 +1,20 @@
 package com.todo.back.model;
 
-import com.mongodb.lang.NonNull;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Document(collection = "UserProfile")
+@Entity
+@Table(name = "user_profile")
 public class UserProfile {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
 
     @Size(min=3, max=30, message = "Username size is incorrect")
@@ -37,7 +38,9 @@ public class UserProfile {
     @NotNull
     private String password;
 
-    @DBRef
+//    @DBRef
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition="JSON")
     private Set<Role> roles = new HashSet<>();
 
     public UserProfile(String username, String name, String surname, String email, String password) {

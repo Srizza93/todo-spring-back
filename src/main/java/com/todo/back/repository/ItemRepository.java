@@ -1,13 +1,12 @@
 package com.todo.back.repository;
 
+import com.todo.back.model.TodoItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-
-import com.todo.back.model.TodoItem;
-
-public interface ItemRepository extends MongoRepository<TodoItem, String> {
+public interface ItemRepository extends JpaRepository<TodoItem, String> {
 
 	List<TodoItem> findByUserIdAndDoneAndDueLessThanEqual(String userId, boolean isDone, LocalDateTime today);
 

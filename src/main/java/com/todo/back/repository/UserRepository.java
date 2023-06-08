@@ -1,11 +1,11 @@
 package com.todo.back.repository;
 
 import com.todo.back.model.UserProfile;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UserRepository extends MongoRepository<UserProfile, String> {
+public interface UserRepository extends JpaRepository<UserProfile, String> {
 
     Optional<UserProfile> findByUsername(String username);
 

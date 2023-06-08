@@ -4,15 +4,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jdk.jfr.BooleanFlag;
 import jdk.jfr.Timestamp;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import jakarta.persistence.*;
 import java.util.Date;
 
-@Document("TodoItem")
+@Entity
+@Table(name = "todo_items")
 public class TodoItem {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
 
     @NotNull

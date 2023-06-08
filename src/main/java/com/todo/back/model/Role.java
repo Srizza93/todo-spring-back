@@ -1,15 +1,20 @@
 package com.todo.back.model;
 
+import com.todo.back.converter.RoleConverter;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-@Document(collection = "roles")
+@Entity
+@Table(name = "roles")
 public class Role {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
 
-    @NotNull
+    @Convert(converter = RoleConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private ERole name;
 
     public Role(ERole name) {
