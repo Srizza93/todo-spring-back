@@ -46,7 +46,7 @@ public class UserProfile {
 
     @NotNull
 //    @ElementCollection
-//    @Column(name = "roles", columnDefinition = "text[]")
+    @Column(name = "roles")
     private Set<String> roles = new HashSet<>();
 
     public UserProfile() {}

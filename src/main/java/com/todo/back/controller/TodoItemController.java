@@ -35,7 +35,7 @@ public class TodoItemController {
     // tag::get-done-user[]
     @GetMapping("/todos/TODAY/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    ResponseEntity<?> allToday(@PathVariable String userId) {
+    ResponseEntity<?> allToday(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(todoService.today(userId));
         } catch (Exception e) {
@@ -47,7 +47,7 @@ public class TodoItemController {
     // tag::get-inbox-user[]
     @GetMapping("/todos/INBOX/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    ResponseEntity<?> allInbox(@PathVariable String userId) {
+    ResponseEntity<?> allInbox(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(todoService.inbox(userId));
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class TodoItemController {
     // tag::get-done-user[]
     @GetMapping("/todos/DONE/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    ResponseEntity<?> allDone(@PathVariable String userId) {
+    ResponseEntity<?> allDone(@PathVariable Long userId) {
         try {
             return ResponseEntity.ok(todoService.done(userId));
         } catch (Exception e) {
@@ -95,7 +95,7 @@ public class TodoItemController {
     // tag::delete-todo[]
     @DeleteMapping("/todos/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
-    ResponseEntity<?> deleteTodo(@PathVariable String id) {
+    ResponseEntity<?> deleteTodo(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(todoService.deleteTodo(id));
         } catch (Exception e) {

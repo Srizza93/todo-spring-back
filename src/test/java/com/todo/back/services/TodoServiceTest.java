@@ -14,7 +14,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,9 +28,9 @@ import static org.mockito.Mockito.*;
 @WithMockUser(username="admin",roles={"USER","ADMIN"})
 public class TodoServiceTest {
 
-    TodoItem todoItem1 = new TodoItem("1", "user1", "Todo 1",  null, null);
+    TodoItem todoItem1 = new TodoItem(222233332L, 22233332L, "Todo 1",  null, null);
 
-    TodoItem todoItem2 = new TodoItem("2", "user2", "Unlock your potential, embrace challenges, learn from failures, and grow into the best version of yourself!", null, null);
+    TodoItem todoItem2 = new TodoItem(222233332L, 22233332L, "Unlock your potential, embrace challenges, learn from failures, and grow into the best version of yourself!", null, null);
 
     List<TodoItem> todoItemList = Arrays.asList(todoItem1, todoItem2);
 
@@ -37,13 +39,15 @@ public class TodoServiceTest {
     @InjectMocks
     private TodoService todoService;
 
-    private final String mockId = "123";
+    private final Long mockId = 22233332L;
 
     TodoDto todoDto = new TodoDto();
 
     LocalDate localDate = LocalDate.now();
 
     LocalDateTime today = localDate.atTime(LocalTime.MAX);
+
+    Date todayDate = Date.from(today.atZone(ZoneId.systemDefault()).toInstant());
 
     @Test
     public void shouldGetAllTodos() {
@@ -65,18 +69,18 @@ public class TodoServiceTest {
 
     @Test
     public void shouldGetAllTodayTodos() {
-        when(todoItemRepository.findByUserIdAndDoneAndDueLessThanEqual(mockId, false, today)).thenReturn(todoItemList);
+        when(todoItemRepository.findByUserIdAndDoneAndDueLessThanEqual(mockId, false, todayDate)).thenReturn(todoItemList);
 
         CollectionModel<EntityModel<TodoItem>> todos = todoService.today(mockId);
 
-        verify(todoItemRepository, times(1)).findByUserIdAndDoneAndDueLessThanEqual(mockId, false, today);
+        verify(todoItemRepository, times(1)).findByUserIdAndDoneAndDueLessThanEqual(mockId, false, todayDate);
 
         assertEquals(todoItemList.size(), todos.getContent().size());
     }
 
     @Test
     public void shouldntGetAllTodayTodosUserServiceException() {
-        doThrow(UserServiceException.class).when(todoItemRepository).findByUserIdAndDoneAndDueLessThanEqual(mockId, false, today);
+        doThrow(UserServiceException.class).when(todoItemRepository).findByUserIdAndDoneAndDueLessThanEqual(mockId, false, todayDate);
 
         assertThrows(UserServiceException.class, () -> todoService.today(mockId));
     }
