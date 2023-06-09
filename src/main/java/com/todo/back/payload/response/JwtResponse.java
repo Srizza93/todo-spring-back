@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
 
 import java.util.List;
+import java.util.Set;
 
 public class JwtResponse {
 
@@ -15,7 +16,7 @@ public class JwtResponse {
     private String type = "Bearer";
 
     @Id
-    private String id;
+    private Long id;
 
     @Size(min=3, max=30, message = "Username size is incorrect")
     @NotNull
@@ -26,9 +27,9 @@ public class JwtResponse {
     @NotNull
     private String email;
 
-    private List<String> roles;
+    private Set<String> roles;
 
-    public JwtResponse(String accessToken, String id, String username, String email, List<String> roles) {
+    public JwtResponse(String accessToken, Long id, String username, String email, Set<String>  roles) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
@@ -52,11 +53,11 @@ public class JwtResponse {
         this.type = tokenType;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -76,7 +77,7 @@ public class JwtResponse {
         this.username = username;
     }
 
-    public List<String> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 }

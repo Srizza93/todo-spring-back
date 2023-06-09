@@ -4,13 +4,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class JwtResponseTest {
 
-    JwtResponse jwtResponse = new JwtResponse("accessToken", "1", "toto93", "toto@gmail.com", List.of("USER_ROLE"));
+    JwtResponse jwtResponse = new JwtResponse("accessToken", 45543534L, "toto93", "toto@gmail.com", Set.of("USER_ROLE"));
 
     @Test
     public void shouldGetAccessToken() {
@@ -39,18 +40,18 @@ public class JwtResponseTest {
 
     @Test
     public void shouldGetId() {
-        String id = jwtResponse.getId();
+        Long id = jwtResponse.getId();
 
-        assertEquals(id, "1");
+        assertEquals(id, 45543534L);
     }
 
     @Test
     public void shouldSetId() {
-        jwtResponse.setId("mock");
+        jwtResponse.setId(12143534L);
 
-        String id = jwtResponse.getId();
+        Long id = jwtResponse.getId();
 
-        assertEquals(id, "mock");
+        assertEquals(id, 12143534L);
     }
 
     @Test
@@ -87,9 +88,9 @@ public class JwtResponseTest {
 
     @Test
     public void shouldGetRoles() {
-        List<String> roles = jwtResponse.getRoles();
+        Set<String> roles = jwtResponse.getRoles();
 
-        assertEquals(roles, List.of("USER_ROLE"));
+        assertEquals(roles, Set.of("USER_ROLE"));
     }
 
 }

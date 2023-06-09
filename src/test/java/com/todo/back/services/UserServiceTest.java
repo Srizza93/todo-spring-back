@@ -1,12 +1,10 @@
 package com.todo.back.services;
 
 import com.todo.back.model.ERole;
-import com.todo.back.model.Role;
 import com.todo.back.model.UserProfile;
 import com.todo.back.payload.request.LoginRequest;
 import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.payload.response.JwtResponse;
-import com.todo.back.repository.RoleRepository;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.security.jwt.JwtUtils;
 import com.todo.back.security.services.UserDetailsImpl;
@@ -60,8 +58,6 @@ public class UserServiceTest {
 
     private final UserRepository userRepository = mock(UserRepository.class);
 
-    private final RoleRepository roleRepository = mock(RoleRepository.class);
-
     LoginRequest loginRequest = new LoginRequest();
 
     SignupRequest signupRequest =
@@ -69,7 +65,7 @@ public class UserServiceTest {
 
     private final String mockId = "123";
 
-    private final Role userRole = new Role(ERole.ROLE_USER);
+    private final String userRole = ERole.userRole;
 
     public UserServiceTest() {
         MockitoAnnotations.openMocks(this);
@@ -150,13 +146,11 @@ public class UserServiceTest {
     public void shouldSignup() {
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
 
         userService.signup(signupRequest);
 
         verify(userRepository, times(1)).existsByUsername(anyString());
         verify(userRepository, times(1)).existsByEmail(anyString());
-        verify(roleRepository, times(1)).findByName(ERole.ROLE_USER);
     }
 
     @Test
@@ -256,13 +250,11 @@ public class UserServiceTest {
         signupRequest.setRole(Collections.singleton("admin"));
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(roleRepository.findByName(ERole.ROLE_ADMIN)).thenReturn(Optional.of(userRole));
 
         userService.signup(signupRequest);
 
         verify(userRepository, times(1)).existsByUsername(anyString());
         verify(userRepository, times(1)).existsByEmail(anyString());
-        verify(roleRepository, times(1)).findByName(ERole.ROLE_ADMIN);
     }
 
     @Test
@@ -270,13 +262,11 @@ public class UserServiceTest {
         signupRequest.setRole(Collections.singleton("mod"));
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(roleRepository.findByName(ERole.ROLE_MODERATOR)).thenReturn(Optional.of(userRole));
 
         userService.signup(signupRequest);
 
         verify(userRepository, times(1)).existsByUsername(anyString());
         verify(userRepository, times(1)).existsByEmail(anyString());
-        verify(roleRepository, times(1)).findByName(ERole.ROLE_MODERATOR);
     }
 
     @Test
@@ -284,20 +274,17 @@ public class UserServiceTest {
         signupRequest.setRole(Collections.singleton("ROLE_USER"));
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
 
         userService.signup(signupRequest);
 
         verify(userRepository, times(1)).existsByUsername(anyString());
         verify(userRepository, times(1)).existsByEmail(anyString());
-        verify(roleRepository, times(1)).findByName(ERole.ROLE_USER);
     }
 
     @Test
     public void shouldntSendConfirmationEmail() throws Exception {
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(roleRepository.findByName(ERole.ROLE_USER)).thenReturn(Optional.of(userRole));
 
         doThrow(UserServiceException.class).when(emailService).sendmail(anyString());
 
@@ -305,7 +292,6 @@ public class UserServiceTest {
 
         verify(userRepository, times(1)).existsByUsername(anyString());
         verify(userRepository, times(1)).existsByEmail(anyString());
-        verify(roleRepository, times(1)).findByName(ERole.ROLE_USER);
         verify(emailService, times(1)).sendmail(anyString());
     }
 }

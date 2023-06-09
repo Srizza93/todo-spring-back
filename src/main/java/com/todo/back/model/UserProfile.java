@@ -11,37 +11,45 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "user_profile")
+@Table(name = "user_profiles")
 public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private String id;
+    @Column(name = "id")
+    private Long id;
 
     @Size(min=3, max=30, message = "Username size is incorrect")
     @NotNull
+    @Column(name = "username")
     private String username;
 
     @Size(min=1, max=30, message = "Name size is incorrect")
     @NotNull
+    @Column(name = "name")
     private String name;
 
     @Size(min=2, max=30, message = "Surname size is incorrect")
     @NotNull
+    @Column(name = "surname")
     private String surname;
 
     @Email
     @Size(min=5, max=100, message = "Email size is incorrect")
     @NotNull
+    @Column(name = "email")
     private String email;
 
     @Size(min=8, max=256, message = "Password size is incorrect")
     @NotNull
+    @Column(name = "password")
     private String password;
 
-//    @DBRef
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition="JSON")
-    private Set<Role> roles = new HashSet<>();
+    @NotNull
+//    @ElementCollection
+//    @Column(name = "roles", columnDefinition = "text[]")
+    private Set<String> roles = new HashSet<>();
+
+    public UserProfile() {}
 
     public UserProfile(String username, String name, String surname, String email, String password) {
         this.username = username;
@@ -51,11 +59,11 @@ public class UserProfile {
         this.password = password;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -97,11 +105,17 @@ public class UserProfile {
         this.password = password;
     }
 
-    public Set<Role> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "Surname: " +  this.surname + " Name: " + this.name + " Email: " + this.email + " Password: " + this.password + " Roles: " +
+                this.roles + " Id: " + this.id + " Username: " + this.username;
     }
 }
