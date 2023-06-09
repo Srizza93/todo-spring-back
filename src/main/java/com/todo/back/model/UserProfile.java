@@ -1,11 +1,9 @@
 package com.todo.back.model;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +43,6 @@ public class UserProfile {
     private String password;
 
     @NotNull
-//    @ElementCollection
     @Column(name = "roles")
     private Set<String> roles = new HashSet<>();
 

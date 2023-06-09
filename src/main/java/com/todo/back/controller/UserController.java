@@ -19,7 +19,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // tag::get-aggregate-root[]
     @GetMapping("/users")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
@@ -30,9 +29,7 @@ public class UserController {
             return handleInternalServerException(e);
         }
     }
-    // end::get-aggregate-root[]
 
-    // tag::get-single-user[]
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
@@ -44,10 +41,7 @@ public class UserController {
             return handleInternalServerException(e);
         }
     }
-    // end::get-single-user[]
 
-
-    // tag::signup[]
     @PostMapping("/signup")
     ResponseEntity<?> signUp(@RequestBody SignupRequest signUpRequest) {
 
@@ -60,5 +54,4 @@ public class UserController {
             return handleInternalServerException(e);
         }
     }
-    // end::signup[]
 }

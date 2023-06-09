@@ -18,9 +18,6 @@ public class TodoItemController {
         this.todoService = todoService;
     }
 
-    // Aggregate root
-
-    // tag::get-aggregate-root[]
     @GetMapping("/todos")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     public ResponseEntity<?> getAllTodos() {
@@ -30,9 +27,7 @@ public class TodoItemController {
             return handleInternalServerException(e);
         }
     }
-    // end::get-aggregate-root[]
 
-    // tag::get-done-user[]
     @GetMapping("/todos/TODAY/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     ResponseEntity<?> allToday(@PathVariable Long userId) {
@@ -42,9 +37,7 @@ public class TodoItemController {
             return handleInternalServerException(e);
         }
     }
-    // end::get-done-user[]
 
-    // tag::get-inbox-user[]
     @GetMapping("/todos/INBOX/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     ResponseEntity<?> allInbox(@PathVariable Long userId) {
@@ -54,9 +47,7 @@ public class TodoItemController {
             return handleInternalServerException(e);
         }
     }
-    // end::get-inbox-user[]
 
-    // tag::get-done-user[]
     @GetMapping("/todos/DONE/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     ResponseEntity<?> allDone(@PathVariable Long userId) {
@@ -66,9 +57,7 @@ public class TodoItemController {
             return handleInternalServerException(e);
         }
     }
-    // end::get-done-user[]
 
-    // tag::post-new-todo[]
     @PostMapping("/todos")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     ResponseEntity<?> newTodo(@RequestBody TodoDto todoDto) {
@@ -78,9 +67,7 @@ public class TodoItemController {
             return handleInternalServerException(e);
         }
     }
-    // end::post-new-todo[]
 
-    // tag::check-todo[]
     @PutMapping("/todos")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     ResponseEntity<?> replaceTodo(@RequestBody TodoDto todoDto) {
@@ -90,9 +77,7 @@ public class TodoItemController {
             return handleInternalServerException(e);
         }
     }
-    // end::check-todo[]
 
-    // tag::delete-todo[]
     @DeleteMapping("/todos/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
     ResponseEntity<?> deleteTodo(@PathVariable Long id) {
@@ -102,5 +87,4 @@ public class TodoItemController {
             return handleInternalServerException(e);
         }
     }
-    // end::delete-todo[]
 }

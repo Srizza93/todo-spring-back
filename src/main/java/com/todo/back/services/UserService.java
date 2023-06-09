@@ -93,7 +93,6 @@ public class UserService {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toSet());
 
-            System.out.println(userDetails + " roles " + roles);
             return ResponseEntity.ok(new JwtResponse(jwt,
                     userDetails.getId(),
                     userDetails.getUsername(),
@@ -185,7 +184,6 @@ public class UserService {
             }
 
             user.setRoles(roles);
-            System.out.println(user.toString());
             userRepository.save(user);
 
             try {

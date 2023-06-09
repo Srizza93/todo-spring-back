@@ -108,8 +108,6 @@ public class TodoService {
 
     public TodoItem editTodoStatus(TodoDto todoDto) throws UserServiceException {
 
-        System.out.println(todoDto + " todo: " + todoDto.getContent());
-
         try {
             return todoItemRepository.findById(todoDto.getId()) //
                     .map(todo -> {
