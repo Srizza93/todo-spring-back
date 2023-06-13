@@ -2,12 +2,10 @@ package com.todo.back.services;
 
 import com.todo.back.controller.UserController;
 import com.todo.back.model.ERole;
-import com.todo.back.model.Role;
 import com.todo.back.model.UserProfile;
 import com.todo.back.payload.request.LoginRequest;
 import com.todo.back.payload.request.SignupRequest;
 import com.todo.back.payload.response.JwtResponse;
-import com.todo.back.repository.RoleRepository;
 import com.todo.back.repository.UserRepository;
 import com.todo.back.security.jwt.JwtUtils;
 import com.todo.back.security.services.UserDetailsImpl;
@@ -46,9 +44,6 @@ public class UserService {
 
     @Autowired
     AuthenticationManager authenticationManager;
-
-    @Autowired
-    RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -94,9 +89,9 @@ public class UserService {
             String jwt = jwtUtils.generateJwtToken(authentication);
 
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            List<String> roles = userDetails.getAuthorities().stream()
+            Set<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
 
             return ResponseEntity.ok(new JwtResponse(jwt,
                     userDetails.getId(),
@@ -168,29 +163,21 @@ public class UserService {
             UserProfile user = new UserProfile(username, name, surname, email, encoder.encode(password));
 
             Set<String> strRoles = signUpRequest.getRoles();
-            Set<Role> roles = new HashSet<>();
+            Set<String> roles = new HashSet<>();
 
-            if (strRoles == null) {
-                Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                roles.add(userRole);
+            if (strRoles.size() == 0) {
+                roles.add(ERole.userRole);
             } else {
                 strRoles.forEach(role -> {
                     switch (role) {
                         case "admin" -> {
-                            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(adminRole);
+                            roles.add(ERole.adminRole);
                         }
                         case "mod" -> {
-                            Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(modRole);
+                            roles.add(ERole.moderatorRole);
                         }
                         default -> {
-                            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                            roles.add(userRole);
+                            roles.add(ERole.userRole);
                         }
                     }
                 });

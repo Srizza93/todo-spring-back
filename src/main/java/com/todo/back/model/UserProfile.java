@@ -1,44 +1,52 @@
 package com.todo.back.model;
 
-import com.mongodb.lang.NonNull;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Document(collection = "UserProfile")
+@Entity
+@Table(name = "user_profiles")
 public class UserProfile {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private Long id;
 
     @Size(min=3, max=30, message = "Username size is incorrect")
     @NotNull
+    @Column(name = "username")
     private String username;
 
     @Size(min=1, max=30, message = "Name size is incorrect")
     @NotNull
+    @Column(name = "name")
     private String name;
 
     @Size(min=2, max=30, message = "Surname size is incorrect")
     @NotNull
+    @Column(name = "surname")
     private String surname;
 
     @Email
     @Size(min=5, max=100, message = "Email size is incorrect")
     @NotNull
+    @Column(name = "email")
     private String email;
 
     @Size(min=8, max=256, message = "Password size is incorrect")
     @NotNull
+    @Column(name = "password")
     private String password;
 
-    @DBRef
-    private Set<Role> roles = new HashSet<>();
+    @NotNull
+    @Column(name = "roles")
+    private Set<String> roles = new HashSet<>();
+
+    public UserProfile() {}
 
     public UserProfile(String username, String name, String surname, String email, String password) {
         this.username = username;
@@ -48,11 +56,11 @@ public class UserProfile {
         this.password = password;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -94,11 +102,17 @@ public class UserProfile {
         this.password = password;
     }
 
-    public Set<Role> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public String toString() {
+        return "Surname: " +  this.surname + " Name: " + this.name + " Email: " + this.email + " Password: " + this.password + " Roles: " +
+                this.roles + " Id: " + this.id + " Username: " + this.username;
     }
 }

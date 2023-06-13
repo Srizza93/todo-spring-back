@@ -3,7 +3,6 @@ package com.todo.back.model;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,11 +14,11 @@ public class UserProfileTest {
 
     @Test
     public void shouldSetGetId() {
-        userProfile.setId("1");
+    userProfile.setId(21331331L);
 
-        String id = userProfile.getId();
+        Long id = userProfile.getId();
 
-        assertEquals(id, "1");
+        assertEquals(id, 21331331L);
     }
 
     @Test
@@ -104,12 +103,10 @@ public class UserProfileTest {
 
     @Test
     public void shouldSetGetRoles() {
-        Role userRole = new Role(ERole.ROLE_USER);
+        userProfile.setRoles(Set.of(ERole.userRole));
 
-        userProfile.setRoles(Set.of(userRole));
+        Set<String> roles = userProfile.getRoles();
 
-        Set<Role> roles = userProfile.getRoles();
-
-        assertEquals(roles, Set.of(userRole));
+        assertEquals(roles, Set.of(ERole.userRole));
     }
 }

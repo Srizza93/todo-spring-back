@@ -37,11 +37,11 @@ public class TodoItemControllerTest {
     @MockBean
     private TodoService todoService;
 
-    private final String mockId = "123";
+    private final Long mockId = 33333332L;
 
-    TodoItem todoItem1 = new TodoItem("1", "user1", "Todo 1", null, null);
+    TodoItem todoItem1 = new TodoItem(111233332L, 22233332L, "Todo 1", null, null);
 
-    TodoItem todoItem2 = new TodoItem("2", "user1", "Todo 2", null, null);
+    TodoItem todoItem2 = new TodoItem(111233332L, 22233332L, "Todo 2", null, null);
 
     private final TodoDto todoItemDto = new TodoDto();
 
@@ -91,7 +91,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/hal+json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/TODAY/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/TODAY/33333332");
     }
 
     @Test
@@ -105,7 +105,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/TODAY/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/TODAY/33333332");
     }
 
     @Test
@@ -119,7 +119,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/hal+json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/INBOX/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/INBOX/33333332");
     }
 
     @Test
@@ -133,7 +133,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/INBOX/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/INBOX/33333332");
     }
 
     @Test
@@ -147,7 +147,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/hal+json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/DONE/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/DONE/33333332");
     }
 
     @Test
@@ -161,7 +161,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/DONE/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/DONE/33333332");
     }
 
     @Test
@@ -239,7 +239,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/33333332");
     }
 
     @Test
@@ -253,7 +253,7 @@ public class TodoItemControllerTest {
 
         assertEquals(mockMvc1.getResponse().getContentType(), "application/json");
         assertEquals(mockMvc1.getRequest().getServerPort(), 80);
-        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/123");
+        assertEquals(mockMvc1.getRequest().getRequestURL().toString(), "http://localhost/todos/33333332");
     }
 
 }

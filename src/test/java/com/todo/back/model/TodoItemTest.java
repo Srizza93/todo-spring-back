@@ -12,38 +12,38 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 public class TodoItemTest {
 
-    TodoItem todoItem = new TodoItem("1", "123", "Hello World", new Date(167721600000L), new Date(167721500000L));
+    TodoItem todoItem = new TodoItem(111233332L, 1111344533L, "Hello World", new Date(167721600000L), new Date(167721500000L));
 
     @Test
     public void shouldGetId() {
-        String id = todoItem.getId();
+        Long id = todoItem.getId();
 
-        assertEquals(id, "1");
+        assertEquals(id, 111233332L);
     }
 
     @Test
     public void shouldSetId() {
-        todoItem.setId("2");
+        todoItem.setId(222233332L);
 
-        String id = todoItem.getId();
+        Long id = todoItem.getId();
 
-        assertEquals(id, "2");
+        assertEquals(id, 222233332L);
     }
 
     @Test
     public void shouldGetUserId() {
-        String userId = todoItem.getUserId();
+        Long userId = todoItem.getUserId();
 
-        assertEquals(userId, "123");
+        assertEquals(userId, 1111344533L);
     }
 
     @Test
     public void shouldSetUserId() {
-        todoItem.setUserId("234");
+        todoItem.setUserId(2222344533L);
 
-        String userId = todoItem.getUserId();
+        Long userId = todoItem.getUserId();
 
-        assertEquals(userId, "234");
+        assertEquals(userId, 2222344533L);
     }
 
     @Test

@@ -1,10 +1,8 @@
 package com.todo.back.security.services;
 
 import com.todo.back.model.ERole;
-import com.todo.back.model.Role;
 import com.todo.back.model.UserProfile;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,14 +22,11 @@ public class UserDetailsImplTest {
 
     UserProfile userProfile = new UserProfile("toto93", "toto", "tutu", "toto@gmail.com", "A!1aaaaaaaaa");
 
-    UserDetailsImpl userDetails1 = new UserDetailsImpl("1", "toto93", "toto@gmail.com", "A!1aaaaaaaaa",  Collections.emptyList());
+    UserDetailsImpl userDetails1 = new UserDetailsImpl(3242324L, "toto93", "toto@gmail.com", "A!1aaaaaaaaa",  Collections.emptyList());
 
     @Test
     public void shouldBuildUserDetails() {
-        Role role = new Role(ERole.ROLE_USER);
-        role.setName(ERole.ROLE_USER);
-
-        userProfile.setRoles(Set.of(role));
+        userProfile.setRoles(Set.of(ERole.userRole));
 
         UserDetailsImpl userDetails2 = UserDetailsImpl.build(userProfile);
 
@@ -52,22 +47,22 @@ public class UserDetailsImplTest {
 
     @Test
     public void shouldEqualsReturnUser() {
-        UserDetailsImpl userDetails2 = new UserDetailsImpl("1", "toto93", "toto@gmail.com", "A!1aaaaaaaaa",  Collections.emptyList());
-        Boolean equals = userDetails1.equals(userDetails2);
+        UserDetailsImpl userDetails2 = new UserDetailsImpl(3242324L, "toto93", "toto@gmail.com", "A!1aaaaaaaaa",  Collections.emptyList());
+        boolean equals = userDetails1.equals(userDetails2);
 
         assertTrue(equals);
     }
 
     @Test
     public void shouldEqualsReturnTrue() {
-        Boolean equals = userDetails1.equals(userDetails1);
+        boolean equals = userDetails1.equals(userDetails1);
 
         assertTrue(equals);
     }
 
     @Test
     public void shouldEqualsReturnFalse() {
-        Boolean equals = userDetails1.equals(o);
+        boolean equals = userDetails1.equals(o);
 
         assertFalse(equals);
     }

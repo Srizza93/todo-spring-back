@@ -4,35 +4,43 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jdk.jfr.BooleanFlag;
 import jdk.jfr.Timestamp;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import jakarta.persistence.*;
 import java.util.Date;
 
-@Document("TodoItem")
+@Entity
+@Table(name = "todo_items")
 public class TodoItem {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private Long id;
 
     @NotNull
-    private String userId;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Size(max=100, message = "Content is too long")
+    @Column(name = "content")
     private String content;
 
     @Timestamp
+    @Column(name = "due")
     private Date due;
 
     @NotNull
     @Timestamp
+    @Column(name = "created")
     private Date created;
 
     @NotNull
     @BooleanFlag
+    @Column(name = "done")
     private  Boolean done;
 
-    public TodoItem(String id, String userId, String content, Date due, Date created) {
+    public TodoItem() {}
+
+    public TodoItem(Long id, Long userId, String content, Date due, Date created) {
         super();
         this.id = id;
         this.userId = userId;
@@ -41,19 +49,19 @@ public class TodoItem {
         this.created = created;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

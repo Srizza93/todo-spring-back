@@ -4,27 +4,27 @@ import java.util.Date;
 
 public class TodoDto {
 
-    private String id;
-    private String userId;
+    private Long id;
+    private Long userId;
     private String content;
     private Date due;
     private Date created;
 
     private  Boolean done;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

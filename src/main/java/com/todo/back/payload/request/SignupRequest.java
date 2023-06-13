@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class SignupRequest {
@@ -25,11 +26,12 @@ public class SignupRequest {
     @NotNull
     private String email;
 
-    private Set<String> roles;
-
     @Size(min=8, max=256, message = "Password size is incorrect")
     @NotNull
     private String password;
+
+    @NotNull
+    private Set<String> roles = new HashSet<>();
 
     public SignupRequest(String username, String name, String surname, String email, String password) {
         this.username = username;
